@@ -1,3 +1,4 @@
+import model.AttendanceLog;
 import model.Employee;
 import service.*;
 import data.*;
@@ -12,6 +13,7 @@ public class Main{
         data.loadData();
 
         AuthService auth = new AuthService(data);
+        AttendanceService att = new AttendanceService(data);
         Scanner sc = new Scanner(System.in);
         while(true){
             System.out.println("===== Employee login =====");
@@ -20,7 +22,7 @@ public class Main{
             System.out.print("Enter Password: ");
             String pass = sc.nextLine();
 
-            boolean user = auth.login(id, pass, data.getEmployees());
+            boolean user=auth.login(id, pass, data.getEmployees());
             if (user) {
                 System.out.println("\nLogin successful");
                 Employee logInUser = auth.getCurrentUser();
@@ -32,8 +34,9 @@ public class Main{
                     }else{
                         System.out.println("1. (Option Unavailable)");
                     }
-                    System.out.println("2. ??");
-                    System.out.println("3. Log Out");
+                    System.out.println("2. Clock in");
+                    System.out.println("3. Clock out");
+                    System.out.println("4. Log Out");
                     System.out.println("Enter your choice: ");
                     int choice = sc.nextInt();
                     sc.nextLine();
@@ -52,8 +55,15 @@ public class Main{
                         }else{
                             System.out.println("Access Denied, You are not Manager");
                         }
+                    }else if (choice ==2){
+                        att.clockIn(logInUser);
+
                     }else if (choice ==3){
+                        att.clockOut(logInUser);
+
+                    }else if (choice ==4){
                         auth.logOut();
+
                     }
                 }
             }else {

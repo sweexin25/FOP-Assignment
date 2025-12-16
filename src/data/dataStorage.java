@@ -1,4 +1,5 @@
 package data;
+import model.AttendanceLog;
 import model.Employee;
 
 import java.io.*;
@@ -38,6 +39,14 @@ public class dataStorage {
             employeeList.add(employee);
         }catch(IOException e){
             System.out.println("Failed to register employees.");
+        }
+    }
+
+    public void saveAttendance(AttendanceLog log) {
+        try(FileWriter writer = new FileWriter("attendance.csv",true)){
+            writer.write("\n"+ log.attendanceToCSV());
+        }catch(IOException e){
+            System.out.println("Failed to save attendance");
         }
     }
 
