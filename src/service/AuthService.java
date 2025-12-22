@@ -42,6 +42,7 @@ public class AuthService {
     public void logOut(){
         System.out.println("Logging out....");
         this.currentUser = null;
+
         System.out.println("Logout successful!");
     }
     public  Employee getCurrentUser() {
