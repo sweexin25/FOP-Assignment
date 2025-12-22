@@ -28,4 +28,18 @@ public class Employee {
     public String getRole() {
         return role;
     }
+
+
+    //for editService
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
