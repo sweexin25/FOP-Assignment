@@ -1,12 +1,13 @@
 import model.Employee;
 import service.*;
 import data.*;
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         dataStorage data = new dataStorage();
-        data.loadData();
+        data.loadData(); // load up all the files
 
         AuthService auth = new AuthService(data);
         EditService editor = new EditService(data);
@@ -20,74 +21,90 @@ public class Main {
             System.out.print("Enter Password: ");
             String pass = sc.nextLine();
 
-            boolean success = auth.login(id, pass, data.getEmployees());
-
-            if (success) {
+            if (auth.login(id, pass, data.getEmployees())) {
                 Employee currentUser = auth.getCurrentUser();
                 System.out.println("Welcome, " + currentUser.getName());
 
                 while (auth.getCurrentUser() != null) {
                     System.out.println("\n===== MAIN MENU =====");
-                    System.out.println("1. Register New Employee (Manager)");
+                    System.out.println("1. Register New Employee");
                     System.out.println("2. Edit Employee Profile");
                     System.out.println("3. Edit Stock Quantity");
-                    System.out.println("4. Log Out");
+                    System.out.println("4. Record New Sale");
+                    System.out.println("5. Edit Sales Information");
+                    System.out.println("6. Log Out");
                     System.out.print("Choice: ");
 
                     String choice = sc.nextLine();
 
                     if (choice.equals("1")) {
+                        // Manager only
                         if (currentUser.getRole().equalsIgnoreCase("Manager")) {
-                            System.out.println("--- Register New Employee ---");
-                            System.out.print("Name: "); String n = sc.nextLine();
-                            System.out.print("ID: "); String i = sc.nextLine();
-                            System.out.print("Pass: "); String p = sc.nextLine();
-                            System.out.print("Role: "); String r = sc.nextLine();
-                            auth.uniqueEmployee(i, n, r, p, data.getEmployees());
-                        } else {
-                            System.out.println("Access Denied.");
-                        }
+                            System.out.println("Enter Name, ID, Pass, Role:");
+                            auth.uniqueEmployee(sc.nextLine(), sc.nextLine(), sc.nextLine(), sc.nextLine(), data.getEmployees());
+                        } else System.out.println("Access Denied");
 
                     } else if (choice.equals("2")) {
-                        System.out.println("--- Edit Profile ---");
+                        // Edit Employee
                         System.out.print("Target ID: "); String tId = sc.nextLine();
-                        System.out.println("1. Name\n2. Password");
-                        String type = sc.nextLine();
-                        if(type.equals("1")) {
+                        System.out.println("1.Name 2.Pass");
+                        if (sc.nextLine().equals("1")) {
                             System.out.print("New Name: "); editor.updateName(tId, sc.nextLine());
-                        } else if(type.equals("2")) {
+                        } else {
                             System.out.print("New Pass: "); editor.updatePassword(tId, sc.nextLine());
                         }
 
                     } else if (choice.equals("3")) {
-                        // --- EDIT STOCK WITH PREVIEW ---
-                        System.out.println("\n--- Edit Stock ---");
-                        System.out.print("Enter Model Name (e.g. DW2300-1): ");
-                        String mName = sc.nextLine();
-
-                        System.out.print("Enter Outlet Code (e.g. C60): ");
-                        String oCode = sc.nextLine();
-
-                        // 1. GET CURRENT STOCK
-                        int currentQty = editor.getCurrentStock(mName, oCode);
-
-                        if (currentQty == -1) {
-                            System.out.println("Error: Outlet not found.");
-                        } else if (currentQty == -2) {
-                            System.out.println("Error: Model not found.");
-                        } else {
-                            // 2. SHOW IT AND ASK FOR UPDATE
-                            System.out.println("Current Stock: " + currentQty);
-                            System.out.print("Enter New Quantity: ");
-                            try {
-                                int newQty = Integer.parseInt(sc.nextLine());
-                                editor.updateStock(mName, oCode, newQty);
-                            } catch (NumberFormatException e) {
-                                System.out.println("Invalid number.");
-                            }
-                        }
+                        // Edit Stock
+                        System.out.print("Model: "); String m = sc.nextLine();
+                        System.out.print("Outlet: "); String o = sc.nextLine();
+                        System.out.println("Current: " + editor.getCurrentStock(m, o));
+                        System.out.print("New Qty: ");
+                        try { editor.updateStock(m, o, Integer.parseInt(sc.nextLine())); }
+                        catch (Exception e) { System.out.println("Invalid number"); }
 
                     } else if (choice.equals("4")) {
+                        // --- RECORD NEW SALE ---
+                        System.out.println("\n--- New Sale ---");
+                        System.out.print("Sale ID (e.g. S01): "); String sId = sc.nextLine();
+                        System.out.print("Customer Name: "); String cName = sc.nextLine();
+                        System.out.print("Model: "); String mName = sc.nextLine();
+                        System.out.print("Quantity: ");
+                        int qty = Integer.parseInt(sc.nextLine());
+                        String date = LocalDate.now().toString();
+
+                        // Add sale using the nested class
+                        data.addSale(new EditService.Transaction(sId, cName, mName, qty, date));
+                        System.out.println("Sale Recorded.");
+
+                    } else if (choice.equals("5")) {
+                        // --- EDIT SALES INFO ---
+                        System.out.println("\n--- Edit Sales Info ---");
+                        System.out.print("Enter Sale ID to edit: ");
+                        String targetID = sc.nextLine();
+
+                        EditService.Transaction t = editor.getSale(targetID);
+
+                        if (t != null) {
+                            System.out.println("Found: " + t.getCustomerName() + " bought " + t.getQuantity() + "x " + t.getModelName());
+                            System.out.println("1. Edit Customer Name");
+                            System.out.println("2. Edit Quantity");
+                            System.out.print("Choice: ");
+                            String type = sc.nextLine();
+
+                            if (type.equals("1")) {
+                                System.out.print("New Name: ");
+                                editor.updateSaleCustomer(targetID, sc.nextLine());
+                            } else if (type.equals("2")) {
+                                System.out.print("New Qty: ");
+                                try { editor.updateSaleQuantity(targetID, Integer.parseInt(sc.nextLine())); }
+                                catch(Exception e) { System.out.println("Invalid number"); }
+                            }
+                        } else {
+                            System.out.println("Sale ID not found.");
+                        }
+
+                    } else if (choice.equals("6")) {
                         auth.logOut();
                     }
                 }

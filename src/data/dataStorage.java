@@ -1,96 +1,73 @@
 package data;
 
 import model.Employee;
-import model.Model; // using your uploaded Model class
+import model.Model;
+import service.EditService;
 import java.io.*;
 import java.util.ArrayList;
 
 public class dataStorage {
+
+    // Your original lists
     private ArrayList<Employee> employeeList = new ArrayList<>();
     private ArrayList<String> outletCodes = new ArrayList<>();
-
-    // new lists to store the stock data
     private ArrayList<Model> modelList = new ArrayList<>();
-    private ArrayList<String> stockHeaders = new ArrayList<>(); // keeps track of C60, C61...
+    private ArrayList<String> stockHeaders = new ArrayList<>();
 
+    // NEW: List to store the sales
+    private ArrayList<EditService.Transaction> salesList = new ArrayList<>();
+
+    // Load everything when the app starts
     public void loadData() {
         loadEmployee();
         loadOutlets();
-        loadStock(); // now we load the stock too
+        loadStock();
+        loadSales(); // loading sales history
     }
 
-    // --- NEW: Loading Stock ---
-    private void loadStock() {
-        modelList.clear();
-        stockHeaders.clear();
+    //load save sales
+    private void loadSales() {
+        salesList.clear();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("model.csv"));
+            File f = new File("sales.csv");
+            if(!f.exists()) return; // skip if file doesn't exist yet
 
-            // 1. read the header to find the outlet columns
-            String headerLine = reader.readLine();
-            if (headerLine != null) {
-                String[] parts = headerLine.split(",");
-                // start at index 2 (skipping Model and Price)
-                for (int i = 2; i < parts.length; i++) {
-                    stockHeaders.add(parts[i].trim());
-                }
-            }
-
-            // 2. read the data rows
+            BufferedReader reader = new BufferedReader(new FileReader(f));
+            reader.readLine(); // skip header
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
-
-                if (parts.length >= 2) {
-                    String name = parts[0].trim();
-                    double price = Double.parseDouble(parts[1].trim());
-
-                    Model model = new Model(name, price);
-
-                    // assign quantities to the right outlet code
-                    for (int i = 0; i < stockHeaders.size(); i++) {
-                        // check if there is data for this column
-                        if (i + 2 < parts.length) {
-                            int qty = Integer.parseInt(parts[i + 2].trim());
-                            model.setQuantity(stockHeaders.get(i), qty);
-                        }
-                    }
-                    modelList.add(model);
+                if (parts.length >= 5) {
+                    // Create the transaction object
+                    salesList.add(new EditService.Transaction(parts[0], parts[1], parts[2], Integer.parseInt(parts[3]), parts[4]));
                 }
             }
-            System.out.println("Stock Loaded: " + modelList.size() + " items");
         } catch (Exception e) {
-            System.out.println("model.csv not found.");
+            System.out.println("Error loading sales.");
         }
     }
 
-    // --- NEW: Saving Stock ---
-    public void saveStock() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("model.csv"))) {
-            // write header
-            writer.write("Model,Price");
-            for (String code : stockHeaders) {
-                writer.write("," + code);
-            }
+    public void saveSales() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("sales.csv"))) {
+            writer.write("SaleID,CustomerName,Model,Qty,Date");
             writer.newLine();
-
-            // write data rows
-            for (Model m : modelList) {
-                writer.write(m.getModelName() + "," + m.getPrice());
-                // use the header list to write quantities in the correct order
-                for (String code : stockHeaders) {
-                    writer.write("," + m.getQuantity(code));
-                }
+            for (EditService.Transaction t : salesList) {
+                writer.write(t.getSaleID() + "," + t.getCustomerName() + "," + t.getModelName() + "," + t.getQuantity() + "," + t.getDate());
                 writer.newLine();
             }
-            System.out.println("Stock saved to file.");
         } catch (IOException e) {
-            System.out.println("Failed to save stock.");
+            System.out.println("Couldn't save sales.");
         }
     }
 
-    // --- YOUR ORIGINAL LOADERS (Kept the same) ---
+    // Add a sale and save immediately
+    public void addSale(EditService.Transaction t) {
+        salesList.add(t);
+        saveSales();
+    }
+
+    public ArrayList<EditService.Transaction> getSales() { return salesList; }
+
     private void loadEmployee() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("employees.csv"));
@@ -122,24 +99,47 @@ public class dataStorage {
         } catch (Exception e) { System.out.println("Outlet file error."); }
     }
 
-    // helpers used by other files
-    public void registerEmployee(String newID, String newName, String newRole, String newPass) {
-        employeeList.add(new Employee(newID, newName, newRole, newPass));
-        saveEmployees();
-        System.out.println("Employee Registered.");
+    private void loadStock() {
+        modelList.clear(); stockHeaders.clear();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("model.csv"));
+            String h = reader.readLine();
+            if(h!=null) { String[] p=h.split(","); for(int i=2; i<p.length; i++) stockHeaders.add(p[i].trim()); }
+            String l;
+            while((l=reader.readLine())!=null) {
+                String[] p=l.split(",");
+                if(p.length>=2) {
+                    Model m = new Model(p[0].trim(), Double.parseDouble(p[1].trim()));
+                    for(int i=0; i<stockHeaders.size(); i++) if(i+2<p.length) m.setQuantity(stockHeaders.get(i), Integer.parseInt(p[i+2].trim()));
+                    modelList.add(m);
+                }
+            }
+            System.out.println("Stock Loaded: " + modelList.size());
+        } catch(Exception e) { System.out.println("model.csv not found."); }
+    }
+
+    public void saveStock() {
+        try(BufferedWriter w = new BufferedWriter(new FileWriter("model.csv"))) {
+            w.write("Model,Price"); for(String s:stockHeaders) w.write(","+s); w.newLine();
+            for(Model m:modelList) {
+                w.write(m.getModelName()+","+m.getPrice());
+                for(String s:stockHeaders) w.write(","+m.getQuantity(s));
+                w.newLine();
+            }
+        } catch(IOException e) {}
+    }
+
+    public void registerEmployee(String id, String n, String r, String p) {
+        employeeList.add(new Employee(id,n,r,p)); saveEmployees();
     }
     public void saveEmployees() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("employees.csv"))) {
-            writer.write("EmployeeID,EmployeeName,Role,Password");
-            writer.newLine();
-            for (Employee emp : employeeList) {
-                writer.write(emp.getId() + "," + emp.getName() + "," + emp.getRole() + "," + emp.getPassword());
-                writer.newLine();
-            }
-        } catch (IOException e) { }
+        try(BufferedWriter w = new BufferedWriter(new FileWriter("employees.csv"))) {
+            w.write("ID,Name,Role,Pass"); w.newLine();
+            for(Employee e:employeeList) { w.write(e.getId()+","+e.getName()+","+e.getRole()+","+e.getPassword()); w.newLine(); }
+        } catch(IOException e) {}
     }
 
     public ArrayList<Employee> getEmployees() { return employeeList; }
     public ArrayList<String> getOutletCodes() { return outletCodes; }
-    public ArrayList<Model> getModels() { return modelList; } // getter for stock list
+    public ArrayList<Model> getModels() { return modelList; }
 }
