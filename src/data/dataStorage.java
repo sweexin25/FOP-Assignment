@@ -1,55 +1,133 @@
 package data;
 
 import model.Employee;
-import model.Model;
+import model.Model; // using your uploaded Model class
 import java.io.*;
 import java.util.ArrayList;
 
 public class dataStorage {
     private ArrayList<Employee> employeeList = new ArrayList<>();
-    private ArrayList<Model> modelList = new ArrayList<>();
+    private ArrayList<String> outletCodes = new ArrayList<>();
 
-    // Header columns for outlets
-    private String[] outletColumns = {};
+    // new lists to store the stock data
+    private ArrayList<Model> modelList = new ArrayList<>();
+    private ArrayList<String> stockHeaders = new ArrayList<>(); // keeps track of C60, C61...
 
     public void loadData() {
         loadEmployee();
-        loadModels();
+        loadOutlets();
+        loadStock(); // now we load the stock too
     }
 
-    // --- EMPLOYEE SECTION (Keeps using Commas) ---
+    // --- NEW: Loading Stock ---
+    private void loadStock() {
+        modelList.clear();
+        stockHeaders.clear();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("model.csv"));
+
+            // 1. read the header to find the outlet columns
+            String headerLine = reader.readLine();
+            if (headerLine != null) {
+                String[] parts = headerLine.split(",");
+                // start at index 2 (skipping Model and Price)
+                for (int i = 2; i < parts.length; i++) {
+                    stockHeaders.add(parts[i].trim());
+                }
+            }
+
+            // 2. read the data rows
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
+
+                if (parts.length >= 2) {
+                    String name = parts[0].trim();
+                    double price = Double.parseDouble(parts[1].trim());
+
+                    Model model = new Model(name, price);
+
+                    // assign quantities to the right outlet code
+                    for (int i = 0; i < stockHeaders.size(); i++) {
+                        // check if there is data for this column
+                        if (i + 2 < parts.length) {
+                            int qty = Integer.parseInt(parts[i + 2].trim());
+                            model.setQuantity(stockHeaders.get(i), qty);
+                        }
+                    }
+                    modelList.add(model);
+                }
+            }
+            System.out.println("Stock Loaded: " + modelList.size() + " items");
+        } catch (Exception e) {
+            System.out.println("model.csv not found.");
+        }
+    }
+
+    // --- NEW: Saving Stock ---
+    public void saveStock() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("model.csv"))) {
+            // write header
+            writer.write("Model,Price");
+            for (String code : stockHeaders) {
+                writer.write("," + code);
+            }
+            writer.newLine();
+
+            // write data rows
+            for (Model m : modelList) {
+                writer.write(m.getModelName() + "," + m.getPrice());
+                // use the header list to write quantities in the correct order
+                for (String code : stockHeaders) {
+                    writer.write("," + m.getQuantity(code));
+                }
+                writer.newLine();
+            }
+            System.out.println("Stock saved to file.");
+        } catch (IOException e) {
+            System.out.println("Failed to save stock.");
+        }
+    }
+
+    // --- YOUR ORIGINAL LOADERS (Kept the same) ---
     private void loadEmployee() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("employees.csv"));
-            reader.readLine(); // skip header
+            reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
-                // employees.csv still uses commas
+                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
                 if (parts.length >= 4) {
-                    Employee employee = new Employee(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim());
-                    employeeList.add(employee);
+                    employeeList.add(new Employee(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim()));
                 }
             }
             System.out.println("Employees Loaded: " + employeeList.size());
-        } catch (Exception e) {
-            System.out.println("Error loading employees: " + e.getMessage());
-        }
+        } catch (Exception e) { System.out.println("Employee file error."); }
     }
 
+    private void loadOutlets() {
+        outletCodes.clear();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("outlet.csv"));
+            reader.readLine();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
+                if (parts.length >= 1) outletCodes.add(parts[0].trim());
+            }
+            System.out.println("Outlets Loaded: " + outletCodes.size());
+        } catch (Exception e) { System.out.println("Outlet file error."); }
+    }
+
+    // helpers used by other files
     public void registerEmployee(String newID, String newName, String newRole, String newPass) {
-        try (FileWriter writer = new FileWriter("employees.csv", true)) {
-            writer.write("\n" + newID.trim() + "," + newName.trim() + "," + newRole.trim() + "," + newPass.trim());
-            System.out.println("Employee Registered Successfully");
-            Employee employee = new Employee(newID, newName, newRole, newPass);
-            employeeList.add(employee);
-        } catch (IOException e) {
-            System.out.println("Failed to register employee.");
-        }
+        employeeList.add(new Employee(newID, newName, newRole, newPass));
+        saveEmployees();
+        System.out.println("Employee Registered.");
     }
-
-    public ArrayList<Employee> getEmployees() { return employeeList; }
-
     public void saveEmployees() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("employees.csv"))) {
             writer.write("EmployeeID,EmployeeName,Role,Password");
@@ -58,93 +136,10 @@ public class dataStorage {
                 writer.write(emp.getId() + "," + emp.getName() + "," + emp.getRole() + "," + emp.getPassword());
                 writer.newLine();
             }
-        } catch (IOException e) {
-            System.out.println("Failed to save employees.");
-        }
+        } catch (IOException e) { }
     }
 
-    // --- MODEL SECTION (Updated for TABS) ---
-    private void loadModels() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("model.csv"));
-
-            // 1. Read Header
-            String headerLine = reader.readLine();
-            if (headerLine != null) {
-                // CRITICAL FIX: Split by TAB ("\t") not comma
-                String[] parts = headerLine.split("\\t");
-
-                if (parts.length > 2) {
-                    outletColumns = new String[parts.length - 2];
-                    for (int i = 0; i < outletColumns.length; i++) {
-                        outletColumns[i] = parts[i + 2].trim();
-                    }
-                }
-            }
-
-            // 2. Read Data Rows
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-
-                // CRITICAL FIX: Split by TAB ("\t")
-                String[] parts = line.split("\\t");
-
-                if (parts.length >= 2) {
-                    String name = parts[0].trim();
-                    double price = 0.0;
-                    try {
-                        price = Double.parseDouble(parts[1].trim());
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid price for " + name);
-                    }
-
-                    Model model = new Model(name, price);
-
-                    // Parse quantities for each outlet
-                    for (int i = 0; i < outletColumns.length; i++) {
-                        if (i + 2 < parts.length) {
-                            try {
-                                int qty = Integer.parseInt(parts[i + 2].trim());
-                                model.setQuantity(outletColumns[i], qty);
-                            } catch (NumberFormatException e) {
-                                model.setQuantity(outletColumns[i], 0);
-                            }
-                        }
-                    }
-                    modelList.add(model);
-                }
-            }
-            System.out.println("Models Loaded: " + modelList.size());
-        } catch (FileNotFoundException e) {
-            System.out.println("model.csv not found.");
-        } catch (IOException e) {
-            System.out.println("Error reading model.csv.");
-        }
-    }
-
-    public void saveModels() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("model.csv"))) {
-            // 1. Write Header (Using TABS to match your file format)
-            writer.write("Model\tPrice");
-            for (String outlet : outletColumns) {
-                writer.write("\t" + outlet);
-            }
-            writer.newLine();
-
-            // 2. Write Data (Using TABS)
-            for (Model m : modelList) {
-                writer.write(m.getModelName() + "\t" + m.getPrice());
-                for (String outlet : outletColumns) {
-                    writer.write("\t" + m.getQuantity(outlet));
-                }
-                writer.newLine();
-            }
-            System.out.println("Stock changes saved to model.csv.");
-        } catch (IOException e) {
-            System.out.println("Failed to save stock data.");
-        }
-    }
-
-    public ArrayList<Model> getModels() { return modelList; }
+    public ArrayList<Employee> getEmployees() { return employeeList; }
+    public ArrayList<String> getOutletCodes() { return outletCodes; }
+    public ArrayList<Model> getModels() { return modelList; } // getter for stock list
 }

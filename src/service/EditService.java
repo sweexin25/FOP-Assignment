@@ -11,44 +11,15 @@ public class EditService {
         this.data = data;
     }
 
-    // --- HELPER: VIEW STOCK (For PDF Requirement) ---
-    public int getCurrentStock(String modelName, String outlet) {
-        for (Model m : data.getModels()) {
-            if (m.getModelName().equalsIgnoreCase(modelName.trim())) {
-                return m.getQuantity(outlet.trim());
-            }
-        }
-        return -1; // -1 means model not found
-    }
-
-    // --- ACTION: UPDATE STOCK ---
-    public void updateStock(String modelName, String targetOutlet, int newQuantity) {
-        Model foundModel = null;
-        for (Model m : data.getModels()) {
-            if (m.getModelName().equalsIgnoreCase(modelName.trim())) {
-                foundModel = m;
-                break;
-            }
-        }
-
-        if (foundModel != null) {
-            foundModel.setQuantity(targetOutlet.trim(), newQuantity);
-            data.saveModels();
-            System.out.println("Stock information updated successfully.");
-        } else {
-            System.out.println("Error: Model name '" + modelName + "' not found.");
-        }
-    }
-
-    // --- EMPLOYEE UPDATES ---
+    // --- PART 1: EDIT USERS ---
     public void updateName(String id, String newName) {
         Employee emp = findEmployee(id);
         if (emp != null) {
             emp.setName(newName);
             data.saveEmployees();
-            System.out.println("Name updated successfully!");
+            System.out.println("Name updated.");
         } else {
-            System.out.println("Employee not found.");
+            System.out.println("User not found.");
         }
     }
 
@@ -57,16 +28,48 @@ public class EditService {
         if (emp != null) {
             emp.setPassword(newPass);
             data.saveEmployees();
-            System.out.println("Password updated successfully!");
+            System.out.println("Password updated.");
         } else {
-            System.out.println("Employee not found.");
+            System.out.println("User not found.");
         }
     }
 
     private Employee findEmployee(String id) {
         for (Employee emp : data.getEmployees()) {
-            if (emp.getId().equalsIgnoreCase(id.trim())) return emp;
+            if (emp.getId().equalsIgnoreCase(id)) return emp;
         }
         return null;
+    }
+
+    // --- PART 2: EDIT STOCK ---
+
+    // NEW: Helper to get the current number (returns -1 if error)
+    public int getCurrentStock(String modelName, String outletCode) {
+        // 1. Check Outlet
+        boolean validOutlet = false;
+        for (String code : data.getOutletCodes()) {
+            if (code.equalsIgnoreCase(outletCode)) validOutlet = true;
+        }
+        if (!validOutlet) return -1; // Error code for "Outlet Not Found"
+
+        // 2. Find Model
+        for (Model m : data.getModels()) {
+            if (m.getModelName().equalsIgnoreCase(modelName)) {
+                return m.getQuantity(outletCode.toUpperCase());
+            }
+        }
+        return -2; // Error code for "Model Not Found"
+    }
+
+    public void updateStock(String modelName, String outletCode, int newQty) {
+        // We find the model again to update it
+        for (Model m : data.getModels()) {
+            if (m.getModelName().equalsIgnoreCase(modelName)) {
+                m.setQuantity(outletCode.toUpperCase(), newQty);
+                data.saveStock();
+                System.out.println("Success: Stock updated.");
+                return;
+            }
+        }
     }
 }
