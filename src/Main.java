@@ -14,6 +14,8 @@ public class Main{
 
         AuthService auth = new AuthService(data);
         AttendanceService att = new AttendanceService(data);
+        StockServiceReplace stock =  new StockServiceReplace(data,att);
+        SalesServiceReplace sales = new SalesServiceReplace(data,att);
         Scanner sc = new Scanner(System.in);
         while(true){
             System.out.println("===== Employee login =====");
@@ -36,7 +38,12 @@ public class Main{
                     }
                     System.out.println("2. Clock in");
                     System.out.println("3. Clock out");
-                    System.out.println("4. Log Out");
+                    System.out.println("4. Stock Count");
+                    System.out.println("5. Stock Movement");
+                    System.out.println("6. Sales Record");
+                    System.out.println("7. Search Infomation");
+                    System.out.println("8. Edit Infomation");
+                    System.out.println("9. Log Out");
                     System.out.println("Enter your choice: ");
                     int choice = sc.nextInt();
                     sc.nextLine();
@@ -62,8 +69,19 @@ public class Main{
                         att.clockOut(logInUser);
 
                     }else if (choice ==4){
+                        stock.performStockCount(logInUser);
+                    }else if (choice ==5){
+                        stock.stockMovement(logInUser);
+                    }else if (choice ==6){
+                        sales.recordSale(logInUser);
+                    }else if(choice ==7){
+                        //search infomation
+                        return;
+                    }else if(choice ==8){
+                        //edit infomation
+                        return;
+                    }else if(choice ==9){
                         auth.logOut();
-
                     }
                 }
             }else {

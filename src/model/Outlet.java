@@ -9,7 +9,7 @@ public class Outlet {
         this.outletName = outletName;
     }
 
-    public String getOutlet(){
+    public String getOutletCode(){
         return outletCode;
     }
     public String getOutletName(){

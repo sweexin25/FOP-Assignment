@@ -2,10 +2,10 @@ package data;
 import model.AttendanceLog;
 import model.Employee;
 import model.Outlet;
+import model.WatchModel;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class dataStorage {
     private ArrayList<Employee> employeeList = new  ArrayList<>();
@@ -15,6 +15,7 @@ public class dataStorage {
     public void loadData() {
         loadEmployee();
         loadOutlet();
+        loadModel();
     }
     private void loadEmployee(){
         try{
@@ -84,4 +85,55 @@ public class dataStorage {
     public int getOutletCount() {
         return outletCount;
     }
+
+    //load model
+    private List<WatchModel> models = new ArrayList<>();
+    public void loadModel(){
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("model.csv"));
+            String line = br.readLine(); // header
+            String[] headers = line.split(",");
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                String name = parts[0].trim();
+                double price = Double.parseDouble(parts[1].trim());
+                Map<String, Integer> stock = new HashMap<>();
+                for (int i = 2; i < parts.length; i++) {
+                    stock.put(headers[i].trim(), Integer.parseInt(parts[i].trim()));
+                }
+                models.add(new WatchModel(name, price, stock));
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading models: " + e.getMessage());
+        }
+    }
+
+    public void saveModels() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("model.csv"))) {
+            pw.print("Model,Price");
+            for (Outlet o : allOutlet) {
+                if(o!=null){
+                    pw.print("," + o.getOutletCode());
+                }
+            }
+            pw.println();
+            for (WatchModel m : models) {
+                pw.print(m.getName() + "," + m.getPrice());
+                for (Outlet o : allOutlet) {
+                    if(o!=null){
+                        pw.print("," + m.getStock(o.getOutletCode()));
+                    }
+                }
+                pw.println();
+            }
+        } catch (Exception e) {
+            System.err.println("Error saving models: " + e.getMessage());
+        }
+    }
+
+    public List<WatchModel> getModels() {
+        return models;
+    }
+
+
 }

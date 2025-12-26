@@ -15,6 +15,7 @@ public class AttendanceService {
     private LocalTime tempInTime = null;
     Scanner sc =new Scanner(System.in);
     String outletName ="";
+    String outletCode ="";
     //constructors
     public AttendanceService(dataStorage storage) {
         this.storage = storage;
@@ -42,9 +43,10 @@ public class AttendanceService {
             System.out.print("Outlet Code: ");
             String inputOutlet = sc.next();
             for (int i = 0; i < count; i++) {
-                if (outlet[i].getOutlet().equalsIgnoreCase(inputOutlet)) {
+                if (outlet[i].getOutletCode().equalsIgnoreCase(inputOutlet)) {
                     System.out.println("Outlet Name:" + outlet[i].getOutletName());
                     outletName = outlet[i].getOutletName();
+                    outletCode = outlet[i].getOutletCode();
                     found = true;
                     break;
                 }
@@ -85,6 +87,12 @@ public class AttendanceService {
         storage.saveAttendance(new AttendanceLog(user.getId(), today,now,"OUT",outletName));
         this.tempInTime = null;
         this.outletName = "";
+        this.outletCode = "";
     }
+    public String getOutletCode() {
+        return this.outletCode;
+    }
+
+
 
 }

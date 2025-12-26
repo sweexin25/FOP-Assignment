@@ -1,0 +1,25 @@
+=== Sale Receipt ===
+Date: 2025-12-26
+Time: 06:34 pm
+Customer: tan
+Item(s): DW2300-4
+Quantity: 1
+Unit Price: RM349.0
+Total: RM349.0
+Transaction Method: cash
+Employee: Khairul Ariffin bin Muhammad
+
+=== Sale Receipt ===
+Date: 2025-12-26
+Time: 06:55 pm
+Customer: TAn
+Item(s): DW2300-4
+Quantity: 1
+Unit Price: RM349.0
+Item(s): DW2400-1
+Quantity: 3
+Unit Price: RM599.0
+Total: RM2146.0
+Transaction Method: cash
+Employee: Khairul Ariffin bin Muhammad
+
