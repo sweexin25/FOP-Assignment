@@ -8,38 +8,37 @@ import java.util.ArrayList;
 
 public class dataStorage {
 
-    // Your original lists
     private ArrayList<Employee> employeeList = new ArrayList<>();
     private ArrayList<String> outletCodes = new ArrayList<>();
     private ArrayList<Model> modelList = new ArrayList<>();
     private ArrayList<String> stockHeaders = new ArrayList<>();
-
-    // NEW: List to store the sales
     private ArrayList<EditService.Transaction> salesList = new ArrayList<>();
 
-    // Load everything when the app starts
     public void loadData() {
         loadEmployee();
         loadOutlets();
         loadStock();
-        loadSales(); // loading sales history
+        loadSales();
     }
 
-    //load save sales
+    // SALES LOAD/SAVE
     private void loadSales() {
         salesList.clear();
         try {
             File f = new File("sales.csv");
-            if(!f.exists()) return; // skip if file doesn't exist yet
+            if(!f.exists()) return;
 
             BufferedReader reader = new BufferedReader(new FileReader(f));
             reader.readLine(); // skip header
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length >= 5) {
-                    // Create the transaction object
-                    salesList.add(new EditService.Transaction(parts[0], parts[1], parts[2], Integer.parseInt(parts[3]), parts[4]));
+                // Now checking for 7 parts (including Payment Type)
+                if (parts.length >= 7) {
+                    salesList.add(new EditService.Transaction(
+                            parts[0], parts[1], parts[2],
+                            Integer.parseInt(parts[3]), parts[4], parts[5], parts[6]
+                    ));
                 }
             }
         } catch (Exception e) {
@@ -49,10 +48,13 @@ public class dataStorage {
 
     public void saveSales() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("sales.csv"))) {
-            writer.write("SaleID,CustomerName,Model,Qty,Date");
+            // Updated Header
+            writer.write("SaleID,CustomerName,Model,Qty,Date,Outlet,Type");
             writer.newLine();
             for (EditService.Transaction t : salesList) {
-                writer.write(t.getSaleID() + "," + t.getCustomerName() + "," + t.getModelName() + "," + t.getQuantity() + "," + t.getDate());
+                // Writing all 7 fields
+                writer.write(t.getSaleID() + "," + t.getCustomerName() + "," + t.getModelName() + "," +
+                        t.getQuantity() + "," + t.getDate() + "," + t.getOutletCode() + "," + t.getPaymentType());
                 writer.newLine();
             }
         } catch (IOException e) {
@@ -60,13 +62,18 @@ public class dataStorage {
         }
     }
 
-    // Add a sale and save immediately
     public void addSale(EditService.Transaction t) {
         salesList.add(t);
         saveSales();
     }
 
     public ArrayList<EditService.Transaction> getSales() { return salesList; }
+
+
+    public ArrayList<Employee> getEmployees() { return employeeList; }
+    public ArrayList<String> getOutletCodes() { return outletCodes; }
+    public ArrayList<Model> getModels() { return modelList; }
+
 
     private void loadEmployee() {
         try {
@@ -138,8 +145,4 @@ public class dataStorage {
             for(Employee e:employeeList) { w.write(e.getId()+","+e.getName()+","+e.getRole()+","+e.getPassword()); w.newLine(); }
         } catch(IOException e) {}
     }
-
-    public ArrayList<Employee> getEmployees() { return employeeList; }
-    public ArrayList<String> getOutletCodes() { return outletCodes; }
-    public ArrayList<Model> getModels() { return modelList; }
 }

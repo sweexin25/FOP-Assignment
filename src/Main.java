@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         dataStorage data = new dataStorage();
-        data.loadData(); // load up all the files
+        data.loadData();
 
         AuthService auth = new AuthService(data);
         EditService editor = new EditService(data);
@@ -38,14 +38,12 @@ public class Main {
                     String choice = sc.nextLine();
 
                     if (choice.equals("1")) {
-                        // Manager only
                         if (currentUser.getRole().equalsIgnoreCase("Manager")) {
                             System.out.println("Enter Name, ID, Pass, Role:");
                             auth.uniqueEmployee(sc.nextLine(), sc.nextLine(), sc.nextLine(), sc.nextLine(), data.getEmployees());
                         } else System.out.println("Access Denied");
 
                     } else if (choice.equals("2")) {
-                        // Edit Employee
                         System.out.print("Target ID: "); String tId = sc.nextLine();
                         System.out.println("1.Name 2.Pass");
                         if (sc.nextLine().equals("1")) {
@@ -55,7 +53,6 @@ public class Main {
                         }
 
                     } else if (choice.equals("3")) {
-                        // Edit Stock
                         System.out.print("Model: "); String m = sc.nextLine();
                         System.out.print("Outlet: "); String o = sc.nextLine();
                         System.out.println("Current: " + editor.getCurrentStock(m, o));
@@ -64,31 +61,53 @@ public class Main {
                         catch (Exception e) { System.out.println("Invalid number"); }
 
                     } else if (choice.equals("4")) {
-                        // --- RECORD NEW SALE ---
+                        //RECORD SALE
                         System.out.println("\n--- New Sale ---");
                         System.out.print("Sale ID (e.g. S01): "); String sId = sc.nextLine();
                         System.out.print("Customer Name: "); String cName = sc.nextLine();
                         System.out.print("Model: "); String mName = sc.nextLine();
-                        System.out.print("Quantity: ");
-                        int qty = Integer.parseInt(sc.nextLine());
-                        String date = LocalDate.now().toString();
 
-                        // Add sale using the nested class
-                        data.addSale(new EditService.Transaction(sId, cName, mName, qty, date));
-                        System.out.println("Sale Recorded.");
+                        String outletCode = currentUser.getId().substring(0, 3);
+                        int currentStock = editor.getCurrentStock(mName, outletCode);
+
+                        if (currentStock == -1) {
+                            System.out.println("Error: Model not found.");
+                        } else {
+                            System.out.println("Available: " + currentStock);
+                            System.out.print("Quantity: ");
+                            try {
+                                int qty = Integer.parseInt(sc.nextLine());
+                                if (qty > currentStock) {
+                                    System.out.println("Error: Not enough stock.");
+                                } else {
+                                    // ASK FOR PAYMENT TYPE
+                                    System.out.print("Payment Type (Cash/Card/QR): ");
+                                    String pType = sc.nextLine();
+
+                                    String date = LocalDate.now().toString();
+
+                                    // Add sale with payment type
+                                    data.addSale(new EditService.Transaction(sId, cName, mName, qty, date, outletCode, pType));
+
+                                    editor.updateStock(mName, outletCode, currentStock - qty);
+                                    System.out.println("Sale Recorded.");
+                                }
+                            } catch (Exception e) { System.out.println("Invalid number."); }
+                        }
 
                     } else if (choice.equals("5")) {
-                        // --- EDIT SALES INFO ---
+                        //EDIT SALES
                         System.out.println("\n--- Edit Sales Info ---");
-                        System.out.print("Enter Sale ID to edit: ");
+                        System.out.print("Enter Sale ID: ");
                         String targetID = sc.nextLine();
 
                         EditService.Transaction t = editor.getSale(targetID);
 
                         if (t != null) {
-                            System.out.println("Found: " + t.getCustomerName() + " bought " + t.getQuantity() + "x " + t.getModelName());
-                            System.out.println("1. Edit Customer Name");
+                            System.out.println("Sale: " + t.getCustomerName() + " | " + t.getModelName() + " | Type: " + t.getPaymentType());
+                            System.out.println("1. Edit Name");
                             System.out.println("2. Edit Quantity");
+                            System.out.println("3. Edit Payment Type"); // New Option
                             System.out.print("Choice: ");
                             String type = sc.nextLine();
 
@@ -99,6 +118,10 @@ public class Main {
                                 System.out.print("New Qty: ");
                                 try { editor.updateSaleQuantity(targetID, Integer.parseInt(sc.nextLine())); }
                                 catch(Exception e) { System.out.println("Invalid number"); }
+                            } else if (type.equals("3")) {
+                                // New Edit Logic
+                                System.out.print("New Payment Type: ");
+                                editor.updateSalePaymentType(targetID, sc.nextLine());
                             }
                         } else {
                             System.out.println("Sale ID not found.");
