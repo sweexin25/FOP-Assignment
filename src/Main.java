@@ -1,14 +1,15 @@
 import model.Employee;
 import service.*;
 import data.*;
-import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        // 1. Initialize Data
         dataStorage data = new dataStorage();
         data.loadData();
 
+        // 2. Initialize Services
         AuthService auth = new AuthService(data);
         EditService editor = new EditService(data);
 
@@ -26,108 +27,48 @@ public class Main {
                 System.out.println("Welcome, " + currentUser.getName());
 
                 while (auth.getCurrentUser() != null) {
+                    // ==========================================
+                    //              MAIN MENU
+                    // ==========================================
                     System.out.println("\n===== MAIN MENU =====");
                     System.out.println("1. Register New Employee");
-                    System.out.println("2. Edit Employee Profile");
-                    System.out.println("3. Edit Stock Quantity");
-                    System.out.println("4. Record New Sale");
-                    System.out.println("5. Edit Sales Information");
-                    System.out.println("6. Log Out");
+                    System.out.println("2. Edit Information");
+                    System.out.println("3. Log Out");
                     System.out.print("Choice: ");
 
-                    String choice = sc.nextLine();
+                    String mainChoice = sc.nextLine();
 
-                    if (choice.equals("1")) {
+                    if (mainChoice.equals("1")) {
                         if (currentUser.getRole().equalsIgnoreCase("Manager")) {
                             System.out.println("Enter Name, ID, Pass, Role:");
                             auth.uniqueEmployee(sc.nextLine(), sc.nextLine(), sc.nextLine(), sc.nextLine(), data.getEmployees());
                         } else System.out.println("Access Denied");
 
-                    } else if (choice.equals("2")) {
-                        System.out.print("Target ID: "); String tId = sc.nextLine();
-                        System.out.println("1.Name 2.Pass");
-                        if (sc.nextLine().equals("1")) {
-                            System.out.print("New Name: "); editor.updateName(tId, sc.nextLine());
-                        } else {
-                            System.out.print("New Pass: "); editor.updatePassword(tId, sc.nextLine());
+                    } else if (mainChoice.equals("2")) {
+                        // ==========================================
+                        //        SUB-MENU: EDIT INFORMATION
+                        // ==========================================
+                        boolean editing = true;
+                        while(editing) {
+                            System.out.println("\n--- Edit Information Menu ---");
+                            System.out.println("1. Edit Employee Profile");
+                            System.out.println("2. Edit Stock Quantity");
+                            System.out.println("3. Record New Sale");
+                            System.out.println("4. Edit Sales Information");
+                            System.out.println("5. Back to Main Menu");
+                            System.out.print("Select: ");
+                            String sub = sc.nextLine();
+
+                            // Use the clean handlers from EditService
+                            if(sub.equals("1")) editor.handleEditProfile(sc);
+                            else if(sub.equals("2")) editor.handleEditStock(sc);
+                            else if(sub.equals("3")) editor.handleRecordSale(sc, currentUser);
+                            else if(sub.equals("4")) editor.handleEditSaleInfo(sc);
+                            else if(sub.equals("5")) editing = false;
+                            else System.out.println("Invalid.");
                         }
 
-                    } else if (choice.equals("3")) {
-                        System.out.print("Model: "); String m = sc.nextLine();
-                        System.out.print("Outlet: "); String o = sc.nextLine();
-                        System.out.println("Current: " + editor.getCurrentStock(m, o));
-                        System.out.print("New Qty: ");
-                        try { editor.updateStock(m, o, Integer.parseInt(sc.nextLine())); }
-                        catch (Exception e) { System.out.println("Invalid number"); }
-
-                    } else if (choice.equals("4")) {
-                        //RECORD SALE
-                        System.out.println("\n--- New Sale ---");
-                        System.out.print("Sale ID (e.g. S01): "); String sId = sc.nextLine();
-                        System.out.print("Customer Name: "); String cName = sc.nextLine();
-                        System.out.print("Model: "); String mName = sc.nextLine();
-
-                        String outletCode = currentUser.getId().substring(0, 3);
-                        int currentStock = editor.getCurrentStock(mName, outletCode);
-
-                        if (currentStock == -1) {
-                            System.out.println("Error: Model not found.");
-                        } else {
-                            System.out.println("Available: " + currentStock);
-                            System.out.print("Quantity: ");
-                            try {
-                                int qty = Integer.parseInt(sc.nextLine());
-                                if (qty > currentStock) {
-                                    System.out.println("Error: Not enough stock.");
-                                } else {
-                                    // ASK FOR PAYMENT TYPE
-                                    System.out.print("Payment Type (Cash/Card/QR): ");
-                                    String pType = sc.nextLine();
-
-                                    String date = LocalDate.now().toString();
-
-                                    // Add sale with payment type
-                                    data.addSale(new EditService.Transaction(sId, cName, mName, qty, date, outletCode, pType));
-
-                                    editor.updateStock(mName, outletCode, currentStock - qty);
-                                    System.out.println("Sale Recorded.");
-                                }
-                            } catch (Exception e) { System.out.println("Invalid number."); }
-                        }
-
-                    } else if (choice.equals("5")) {
-                        //EDIT SALES
-                        System.out.println("\n--- Edit Sales Info ---");
-                        System.out.print("Enter Sale ID: ");
-                        String targetID = sc.nextLine();
-
-                        EditService.Transaction t = editor.getSale(targetID);
-
-                        if (t != null) {
-                            System.out.println("Sale: " + t.getCustomerName() + " | " + t.getModelName() + " | Type: " + t.getPaymentType());
-                            System.out.println("1. Edit Name");
-                            System.out.println("2. Edit Quantity");
-                            System.out.println("3. Edit Payment Type"); // New Option
-                            System.out.print("Choice: ");
-                            String type = sc.nextLine();
-
-                            if (type.equals("1")) {
-                                System.out.print("New Name: ");
-                                editor.updateSaleCustomer(targetID, sc.nextLine());
-                            } else if (type.equals("2")) {
-                                System.out.print("New Qty: ");
-                                try { editor.updateSaleQuantity(targetID, Integer.parseInt(sc.nextLine())); }
-                                catch(Exception e) { System.out.println("Invalid number"); }
-                            } else if (type.equals("3")) {
-                                // New Edit Logic
-                                System.out.print("New Payment Type: ");
-                                editor.updateSalePaymentType(targetID, sc.nextLine());
-                            }
-                        } else {
-                            System.out.println("Sale ID not found.");
-                        }
-
-                    } else if (choice.equals("6")) {
+                    } else if (mainChoice.equals("3")) {
                         auth.logOut();
                     }
                 }

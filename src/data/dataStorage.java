@@ -12,6 +12,7 @@ public class dataStorage {
     private ArrayList<String> outletCodes = new ArrayList<>();
     private ArrayList<Model> modelList = new ArrayList<>();
     private ArrayList<String> stockHeaders = new ArrayList<>();
+
     private ArrayList<EditService.Transaction> salesList = new ArrayList<>();
 
     public void loadData() {
@@ -21,7 +22,7 @@ public class dataStorage {
         loadSales();
     }
 
-    // SALES LOAD/SAVE
+    // --- SALES LOAD/SAVE (Now 8 Columns) ---
     private void loadSales() {
         salesList.clear();
         try {
@@ -33,11 +34,12 @@ public class dataStorage {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                // Now checking for 7 parts (including Payment Type)
-                if (parts.length >= 7) {
+                // Checking for 8 parts (including TotalPrice)
+                if (parts.length >= 8) {
                     salesList.add(new EditService.Transaction(
                             parts[0], parts[1], parts[2],
-                            Integer.parseInt(parts[3]), parts[4], parts[5], parts[6]
+                            Integer.parseInt(parts[3]), parts[4], parts[5], parts[6],
+                            Double.parseDouble(parts[7]) // <--- Load Total Price
                     ));
                 }
             }
@@ -48,13 +50,12 @@ public class dataStorage {
 
     public void saveSales() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("sales.csv"))) {
-            // Updated Header
-            writer.write("SaleID,CustomerName,Model,Qty,Date,Outlet,Type");
+            writer.write("SaleID,CustomerName,Model,Qty,Date,Outlet,Type,Total");
             writer.newLine();
             for (EditService.Transaction t : salesList) {
-                // Writing all 7 fields
                 writer.write(t.getSaleID() + "," + t.getCustomerName() + "," + t.getModelName() + "," +
-                        t.getQuantity() + "," + t.getDate() + "," + t.getOutletCode() + "," + t.getPaymentType());
+                        t.getQuantity() + "," + t.getDate() + "," + t.getOutletCode() + "," +
+                        t.getPaymentType() + "," + t.getTotalPrice()); // <--- Save Total Price
                 writer.newLine();
             }
         } catch (IOException e) {
@@ -69,11 +70,10 @@ public class dataStorage {
 
     public ArrayList<EditService.Transaction> getSales() { return salesList; }
 
-
+    // --- EXISTING METHODS ---
     public ArrayList<Employee> getEmployees() { return employeeList; }
     public ArrayList<String> getOutletCodes() { return outletCodes; }
     public ArrayList<Model> getModels() { return modelList; }
-
 
     private void loadEmployee() {
         try {
@@ -81,33 +81,23 @@ public class dataStorage {
             reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
-                if (parts.length >= 4) {
-                    employeeList.add(new Employee(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim()));
-                }
+                if (parts.length >= 4) employeeList.add(new Employee(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim()));
             }
-            System.out.println("Employees Loaded: " + employeeList.size());
-        } catch (Exception e) { System.out.println("Employee file error."); }
+        } catch (Exception e) {}
     }
-
     private void loadOutlets() {
-        outletCodes.clear();
         try {
             BufferedReader reader = new BufferedReader(new FileReader("outlet.csv"));
             reader.readLine();
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
                 if (parts.length >= 1) outletCodes.add(parts[0].trim());
             }
-            System.out.println("Outlets Loaded: " + outletCodes.size());
-        } catch (Exception e) { System.out.println("Outlet file error."); }
+        } catch (Exception e) {}
     }
-
     private void loadStock() {
-        modelList.clear(); stockHeaders.clear();
         try {
             BufferedReader reader = new BufferedReader(new FileReader("model.csv"));
             String h = reader.readLine();
@@ -121,10 +111,8 @@ public class dataStorage {
                     modelList.add(m);
                 }
             }
-            System.out.println("Stock Loaded: " + modelList.size());
-        } catch(Exception e) { System.out.println("model.csv not found."); }
+        } catch(Exception e) {}
     }
-
     public void saveStock() {
         try(BufferedWriter w = new BufferedWriter(new FileWriter("model.csv"))) {
             w.write("Model,Price"); for(String s:stockHeaders) w.write(","+s); w.newLine();
@@ -135,10 +123,7 @@ public class dataStorage {
             }
         } catch(IOException e) {}
     }
-
-    public void registerEmployee(String id, String n, String r, String p) {
-        employeeList.add(new Employee(id,n,r,p)); saveEmployees();
-    }
+    public void registerEmployee(String id, String n, String r, String p) { employeeList.add(new Employee(id,n,r,p)); saveEmployees(); }
     public void saveEmployees() {
         try(BufferedWriter w = new BufferedWriter(new FileWriter("employees.csv"))) {
             w.write("ID,Name,Role,Pass"); w.newLine();
