@@ -6,7 +6,7 @@ import java.util.Map;
 public class Model {
     private String modelName;
     private double price;
-    // Stores stock for multiple outlets: "C60" -> 2, "C61" -> 5
+    // Store stock for multiple outlet
     private Map<String, Integer> stockMap;
 
     public Model(String modelName, double price) {
@@ -18,7 +18,7 @@ public class Model {
     public String getModelName() { return modelName; }
     public double getPrice() { return price; }
 
-    // Get quantity for a specific outlet (Safety: handles null/empty/lowercase)
+    // Get quantity for a specific outlet
     public int getQuantity(String outletID) {
         if (outletID == null) return 0;
         return stockMap.getOrDefault(outletID.trim().toUpperCase(), 0);

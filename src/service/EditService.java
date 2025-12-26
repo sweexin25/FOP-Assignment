@@ -13,9 +13,6 @@ public class EditService {
         this.data = data;
     }
 
-    // ==========================================
-    //       SUB-MENU HANDLERS (Interactions)
-    // ==========================================
 
     public void handleEditProfile(Scanner sc) {
         System.out.println("\n--- Edit Profile ---");
@@ -71,7 +68,7 @@ public class EditService {
                     double total = price * qty;
                     System.out.println("Total Price: RM" + total);
 
-                    // Add Sale (Now includes Total Price)
+                    // Add Sale
                     data.addSale(new Transaction(sId, cName, mName, qty, LocalDate.now().toString(), outletCode, pType, total));
 
                     // Deduct Stock
@@ -120,10 +117,6 @@ public class EditService {
         }
     }
 
-    // ==========================================
-    //       BACKEND LOGIC
-    // ==========================================
-
     public void updateName(String id, String newName) {
         for (Employee emp : data.getEmployees()) {
             if (emp.getId().equalsIgnoreCase(id)) {
@@ -157,7 +150,7 @@ public class EditService {
         return -1;
     }
 
-    // Helper to get price for calculations
+    // Helper to get price for calculation
     public double getModelPrice(String modelName) {
         for (Model m : data.getModels()) {
             if (m.getModelName().equalsIgnoreCase(modelName)) {
@@ -185,7 +178,7 @@ public class EditService {
         return null;
     }
 
-    // --- SALES UPDATE METHODS ---
+    //SALES UPDATE METHOD
     public void updateSaleCustomer(String saleID, String newName) {
         Transaction t = getSale(saleID);
         if (t != null) { t.setCustomerName(newName); data.saveSales(); System.out.println("Sales information updated successfully."); }
@@ -194,8 +187,6 @@ public class EditService {
     public void updateSaleModel(String saleID, String newModel) {
         Transaction t = getSale(saleID);
         if (t != null) {
-            // Note: In a real app, you would adjust stock here (refund old model, deduct new).
-            // For simplicity, we are just updating the record string as requested.
             t.setModelName(newModel);
             data.saveSales();
             System.out.println("Sales information updated successfully.");
@@ -217,9 +208,7 @@ public class EditService {
         if (t != null) { t.setPaymentType(newType); data.saveSales(); System.out.println("Sales information updated successfully."); }
     }
 
-    // ==========================================
-    //    UPDATED TRANSACTION CLASS
-    // ==========================================
+
     public static class Transaction {
         private String saleID, customerName, modelName, date, outletCode, paymentType;
         private int quantity;
@@ -236,7 +225,7 @@ public class EditService {
             this.totalPrice = totalPrice;
         }
 
-        // Getters
+        // Getter
         public String getSaleID() { return saleID; }
         public String getCustomerName() { return customerName; }
         public String getModelName() { return modelName; }
@@ -246,7 +235,7 @@ public class EditService {
         public String getPaymentType() { return paymentType; }
         public double getTotalPrice() { return totalPrice; } // <--- New Getter
 
-        // Setters
+        // Setter
         public void setCustomerName(String n) { this.customerName = n; }
         public void setModelName(String m) { this.modelName = m; } // <--- New Setter
         public void setQuantity(int q) { this.quantity = q; }

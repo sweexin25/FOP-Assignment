@@ -22,7 +22,7 @@ public class dataStorage {
         loadSales();
     }
 
-    // --- SALES LOAD/SAVE (Now 8 Columns) ---
+    //SALES LOAD/SAVE
     private void loadSales() {
         salesList.clear();
         try {
@@ -39,7 +39,7 @@ public class dataStorage {
                     salesList.add(new EditService.Transaction(
                             parts[0], parts[1], parts[2],
                             Integer.parseInt(parts[3]), parts[4], parts[5], parts[6],
-                            Double.parseDouble(parts[7]) // <--- Load Total Price
+                            Double.parseDouble(parts[7]) //Load Total Price
                     ));
                 }
             }
@@ -70,7 +70,6 @@ public class dataStorage {
 
     public ArrayList<EditService.Transaction> getSales() { return salesList; }
 
-    // --- EXISTING METHODS ---
     public ArrayList<Employee> getEmployees() { return employeeList; }
     public ArrayList<String> getOutletCodes() { return outletCodes; }
     public ArrayList<Model> getModels() { return modelList; }
