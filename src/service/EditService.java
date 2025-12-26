@@ -13,7 +13,6 @@ public class EditService {
         this.data = data;
     }
 
-
     public void handleEditProfile(Scanner sc) {
         System.out.println("\n--- Edit Profile ---");
         System.out.print("Target ID: "); String tId = sc.nextLine();
@@ -43,13 +42,18 @@ public class EditService {
 
     public void handleRecordSale(Scanner sc, Employee currentUser) {
         System.out.println("\n--- Record New Sale ---");
+
+        // 1. Ask for Date (User Input) instead of auto-generating it
+        System.out.print("Enter Transaction Date (YYYY-MM-DD): ");
+        String date = sc.nextLine();
+
         System.out.print("Sale ID (e.g. S01): "); String sId = sc.nextLine();
         System.out.print("Customer Name: "); String cName = sc.nextLine();
         System.out.print("Model: "); String mName = sc.nextLine();
 
         String outletCode = currentUser.getId().substring(0, 3);
         int currentStock = getCurrentStock(mName, outletCode);
-        double price = getModelPrice(mName); // Get price for total calc
+        double price = getModelPrice(mName);
 
         if (currentStock == -1) {
             System.out.println("Error: Model not found at your outlet.");
@@ -68,8 +72,8 @@ public class EditService {
                     double total = price * qty;
                     System.out.println("Total Price: RM" + total);
 
-                    // Add Sale
-                    data.addSale(new Transaction(sId, cName, mName, qty, LocalDate.now().toString(), outletCode, pType, total));
+                    // Add Sale using the USER INPUT DATE
+                    data.addSale(new Transaction(sId, cName, mName, qty, date, outletCode, pType, total));
 
                     // Deduct Stock
                     updateStock(mName, outletCode, currentStock - qty);
@@ -81,15 +85,22 @@ public class EditService {
 
     public void handleEditSaleInfo(Scanner sc) {
         System.out.println("\n=== Edit Sales Information ===");
-        System.out.print("Enter Sale ID: ");
-        String targetID = sc.nextLine();
-        Transaction t = getSale(targetID);
+
+        // Search using Date and Name
+        System.out.print("Enter Transaction Date (YYYY-MM-DD): ");
+        String targetDate = sc.nextLine();
+
+        System.out.print("Enter Customer Name: ");
+        String targetName = sc.nextLine();
+
+        Transaction t = getSale(targetDate, targetName);
 
         if (t != null) {
             System.out.println("\nSales Record Found:");
             System.out.println("Model: " + t.getModelName() + "  Quantity: " + t.getQuantity());
             System.out.println("Total: RM" + t.getTotalPrice());
             System.out.println("Transaction Method: " + t.getPaymentType());
+
             System.out.println("\nSelect number to edit:");
             System.out.println("1. Name    2. Model    3. Quantity    4. Total");
             System.out.println("5. Transaction Method");
@@ -98,24 +109,28 @@ public class EditService {
             String choice = sc.nextLine();
 
             if (choice.equals("1")) {
-                System.out.print("Enter New Name: "); updateSaleCustomer(targetID, sc.nextLine());
+                System.out.print("Enter New Name: ");
+                updateSaleCustomer(targetDate, targetName, sc.nextLine());
             } else if (choice.equals("2")) {
-                System.out.print("Enter New Model: "); updateSaleModel(targetID, sc.nextLine());
+                System.out.print("Enter New Model: ");
+                updateSaleModel(targetDate, targetName, sc.nextLine());
             } else if (choice.equals("3")) {
                 System.out.print("Enter New Quantity: ");
-                try { updateSaleQuantity(targetID, Integer.parseInt(sc.nextLine())); }
+                try { updateSaleQuantity(targetDate, targetName, Integer.parseInt(sc.nextLine())); }
                 catch(Exception e) { System.out.println("Invalid number"); }
             } else if (choice.equals("4")) {
                 System.out.print("Enter New Total: ");
-                try { updateSaleTotal(targetID, Double.parseDouble(sc.nextLine())); }
+                try { updateSaleTotal(targetDate, targetName, Double.parseDouble(sc.nextLine())); }
                 catch(Exception e) { System.out.println("Invalid number"); }
             } else if (choice.equals("5")) {
-                System.out.print("Enter New Method: "); updateSalePaymentType(targetID, sc.nextLine());
+                System.out.print("Enter New Transaction Method: ");
+                updateSalePaymentType(targetDate, targetName, sc.nextLine());
             }
         } else {
-            System.out.println("Sale ID not found.");
+            System.out.println("Sales Record Not Found.");
         }
     }
+
 
     public void updateName(String id, String newName) {
         for (Employee emp : data.getEmployees()) {
@@ -150,7 +165,6 @@ public class EditService {
         return -1;
     }
 
-    // Helper to get price for calculation
     public double getModelPrice(String modelName) {
         for (Model m : data.getModels()) {
             if (m.getModelName().equalsIgnoreCase(modelName)) {
@@ -171,21 +185,27 @@ public class EditService {
         }
     }
 
-    public Transaction getSale(String saleID) {
+    // Search by Date and Customer Name
+    public Transaction getSale(String date, String customerName) {
         for (Transaction t : data.getSales()) {
-            if (t.getSaleID().equalsIgnoreCase(saleID)) return t;
+            if (t.getDate().equalsIgnoreCase(date) && t.getCustomerName().equalsIgnoreCase(customerName)) {
+                return t;
+            }
         }
         return null;
     }
 
-    //SALES UPDATE METHOD
-    public void updateSaleCustomer(String saleID, String newName) {
-        Transaction t = getSale(saleID);
-        if (t != null) { t.setCustomerName(newName); data.saveSales(); System.out.println("Sales information updated successfully."); }
+    public void updateSaleCustomer(String date, String currentName, String newName) {
+        Transaction t = getSale(date, currentName);
+        if (t != null) {
+            t.setCustomerName(newName);
+            data.saveSales();
+            System.out.println("Sales information updated successfully.");
+        }
     }
 
-    public void updateSaleModel(String saleID, String newModel) {
-        Transaction t = getSale(saleID);
+    public void updateSaleModel(String date, String customerName, String newModel) {
+        Transaction t = getSale(date, customerName);
         if (t != null) {
             t.setModelName(newModel);
             data.saveSales();
@@ -193,26 +213,40 @@ public class EditService {
         }
     }
 
-    public void updateSaleQuantity(String saleID, int newQty) {
-        Transaction t = getSale(saleID);
-        if (t != null) { t.setQuantity(newQty); data.saveSales(); System.out.println("Sales information updated successfully."); }
+    public void updateSaleQuantity(String date, String customerName, int newQty) {
+        Transaction t = getSale(date, customerName);
+        if (t != null) {
+            t.setQuantity(newQty);
+            data.saveSales();
+            System.out.println("Sales information updated successfully.");
+        }
     }
 
-    public void updateSaleTotal(String saleID, double newTotal) {
-        Transaction t = getSale(saleID);
-        if (t != null) { t.setTotalPrice(newTotal); data.saveSales(); System.out.println("Sales information updated successfully."); }
+    public void updateSaleTotal(String date, String customerName, double newTotal) {
+        Transaction t = getSale(date, customerName);
+        if (t != null) {
+            t.setTotalPrice(newTotal);
+            data.saveSales();
+            System.out.println("Sales information updated successfully.");
+        }
     }
 
-    public void updateSalePaymentType(String saleID, String newType) {
-        Transaction t = getSale(saleID);
-        if (t != null) { t.setPaymentType(newType); data.saveSales(); System.out.println("Sales information updated successfully."); }
+    public void updateSalePaymentType(String date, String customerName, String newType) {
+        Transaction t = getSale(date, customerName);
+        if (t != null) {
+            t.setPaymentType(newType);
+            data.saveSales();
+            System.out.println("Sales information updated successfully.");
+        }
     }
 
-
+    // ==========================================
+    //    TRANSACTION CLASS
+    // ==========================================
     public static class Transaction {
         private String saleID, customerName, modelName, date, outletCode, paymentType;
         private int quantity;
-        private double totalPrice; // <--- NEW FIELD
+        private double totalPrice;
 
         public Transaction(String saleID, String customerName, String modelName, int quantity, String date, String outletCode, String paymentType, double totalPrice) {
             this.saleID = saleID;
@@ -225,7 +259,6 @@ public class EditService {
             this.totalPrice = totalPrice;
         }
 
-        // Getter
         public String getSaleID() { return saleID; }
         public String getCustomerName() { return customerName; }
         public String getModelName() { return modelName; }
@@ -233,13 +266,12 @@ public class EditService {
         public String getDate() { return date; }
         public String getOutletCode() { return outletCode; }
         public String getPaymentType() { return paymentType; }
-        public double getTotalPrice() { return totalPrice; } // <--- New Getter
+        public double getTotalPrice() { return totalPrice; }
 
-        // Setter
         public void setCustomerName(String n) { this.customerName = n; }
-        public void setModelName(String m) { this.modelName = m; } // <--- New Setter
+        public void setModelName(String m) { this.modelName = m; }
         public void setQuantity(int q) { this.quantity = q; }
         public void setPaymentType(String p) { this.paymentType = p; }
-        public void setTotalPrice(double t) { this.totalPrice = t; } // <--- New Setter
+        public void setTotalPrice(double t) { this.totalPrice = t; }
     }
 }
