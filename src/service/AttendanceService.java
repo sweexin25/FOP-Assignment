@@ -1,14 +1,13 @@
 package service;
 import data.dataStorage;
-import model.AttendanceLog;
-import model.Employee;
-import model.Outlet;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import model.AttendanceLog;
+import model.Employee;
+import model.Outlet;
 
 public class AttendanceService {
     private dataStorage storage;

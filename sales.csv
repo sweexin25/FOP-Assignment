@@ -2,3 +2,5 @@ date,time,customerName,watchModelStr,subtotal,employeeName,transactionMethod,tra
 2025-12-27,05:35 pm,TAN,SW2500-3:1,845.0,Khairul Ariffin bin Muhammad,cahs,Success
 2025-12-27,05:38 pm,Swee,SW2500-2:1|SW2500-1:2,2535.0,Khairul Ariffin bin Muhammad,credit,Success
 2025-12-27,06:24 pm,Xin,SW2400-3:1|SW2400-2:1,1538.0,Khairul Ariffin bin Muhammad,cash,Success
+2025-12-28,03:51 pm,ONG XIAN JIE,DW2300-1:2,798.0,Tan Guan Han,credit card,Success
+2025-12-28,03:55 pm,ONG XIAN JIE,DW2300-1:2|DW2300-1:0,0.0,Tan Guan Han,credit,Success
