@@ -34,9 +34,9 @@ public class Main{
                 System.out.println("Welcome, " +logInUser.getName() +"("+logInUser.getId()+")");
                 while (auth.getCurrentUser() != null) {
                     System.out.println("===== Main Menu =====");
-                    if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")){
+                    if (auth.isManager()) {
                         System.out.println("1. Register New Employee");
-                    }else{
+                    } else {
                         System.out.println("1. (Option Unavailable)");
                     }
                     System.out.println("2. Clock in");
@@ -51,7 +51,7 @@ public class Main{
                     int choice = sc.nextInt();
                     sc.nextLine();
                     if (choice ==1 ){
-                        if(auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")){
+                        if(auth.isManager()){
                             System.out.println("===== Register New Employee =====");
                             System.out.print("Enter Employee Name: ");
                             String newName = sc.nextLine();
@@ -60,26 +60,29 @@ public class Main{
                             System.out.print("Set Password: ");
                             String newPass = sc.nextLine();
                             System.out.print("Set Role: ");
-                            String newRole = sc.nextLine();
+                            String newRole = sc.nextLine().trim();
                             auth.uniqueEmployee(newID, newName, newRole, newPass,data.getEmployees());
                         }else{
-                            System.out.println("Access Denied, You are not Manager");
+                            System.out.println("Access Denied, Only Manager can Access.");
                         }
                     }else if (choice ==2){
                         att.clockIn(logInUser);
-
                     }else if (choice ==3){
                         att.clockOut(logInUser);
-
                     }else if (choice ==4){
                         stock.performStockCount(logInUser);
                     }else if (choice ==5){
                         stock.stockMovement(logInUser);
                     }else if (choice ==6){
+                        data.loadSale(); //load again so no need rerun program
                         sales.recordSale(logInUser);
                     }else if(choice ==7){
+                        data.loadSale();
+                        data.loadModel();
                         search.searchService(logInUser);
                     }else if(choice ==8){
+                        data.loadSale();
+                        data.loadModel();
                         edit.handleEditMenu(sc);
                     }else if(choice ==9){
                         auth.logOut();

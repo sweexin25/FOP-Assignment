@@ -17,6 +17,9 @@ public class AuthService {
         }
         return false;
     }
+    public boolean isManager() {
+        return currentUser != null && currentUser.getRole().equalsIgnoreCase("Manager");
+    }
     public void uniqueEmployee(String newID, String newName, String newRole, String newPass,ArrayList<Employee> employees){
         for (Employee employee: employees){
             storage.getEmployees();

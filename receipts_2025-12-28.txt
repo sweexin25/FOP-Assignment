@@ -1,0 +1,50 @@
+=== Stock In ===
+Date: 2025-12-28
+Time: 03:53 pm
+From: C69
+To: C68
+Models Received:
+- SW2500-2 (Quantity: 1)
+Total Quantity: 1
+Employee in Charge: Khairul Ariffin bin Muhammad
+
+=== Stock Out ===
+Date: 2025-12-28
+Time: 05:15 pm
+From: C69
+To: C68
+Models Transferred:
+- SW2500-3 (Quantity: 1)
+Total Quantity: 1
+Employee in Charge: efawg
+
+=== Stock In ===
+Date: 2025-12-28
+Time: 05:18 pm
+From: C66
+To: C69
+Models Received:
+- SW2500-4 (Quantity: 1)
+Total Quantity: 1
+Employee in Charge: efawg
+
+=== Stock In ===
+Date: 2025-12-28
+Time: 05:51 pm
+From: C68
+To: C69
+Models Received:
+- SW2500-4 (Quantity: 1)
+Total Quantity: 1
+Employee in Charge: efawg
+
+=== Stock Out ===
+Date: 2025-12-28
+Time: 05:51 pm
+From: C69
+To: C68
+Models Transferred:
+- SW2500-4 (Quantity: 1)
+Total Quantity: 1
+Employee in Charge: efawg
+

@@ -98,6 +98,7 @@ public class dataStorage {
     //load model
     private List<WatchModel> models = new ArrayList<>();
     public void loadModel(){
+        this.models.clear(); //clears java memory, so that user no need to rerun program
         try {
             BufferedReader br = new BufferedReader(new FileReader("model.csv"));
             String line = br.readLine(); // header

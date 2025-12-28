@@ -1,4 +1,7 @@
 Date,Time,Customer,Items,Subtotal,Employee,Method,Status
-2025-12-27,05:35 pm,TAN,SW2500-1:1,845.0,Khairul Ariffin bin Muhammad,Cash,Success
+2025-12-27,05:35 pm,TANI,SW2500-1:1,845.0,Khairul Ariffin bin Muhammad,Cash,Success
 2025-12-27,05:38 pm,Swee,SW2500-2:1|SW2500-1:2,2535.0,Khairul Ariffin bin Muhammad,credit,Success
 2025-12-27,06:24 pm,Xin,SW2400-3:1|SW2400-2:1,1538.0,Khairul Ariffin bin Muhammad,cash,Success
+2025-12-28,03:56 pm,Lee,SW2400-2:2|SW2400-1:2,2147.0,Khairul Ariffin bin Muhammad,credit,Success
+2025-12-28,04:30 pm,Low,SW2500-4:2|SW2500-3:4,5030.0,Khairul Ariffin bin Muhammad,cash,Success
+2025-12-28,06:02 pm,WONG,SW2500-4:1,825.0,Jarjit Singh,cash,Success

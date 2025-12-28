@@ -76,7 +76,11 @@ public class EditService {
             target.setPassword(sc.nextLine());
             storage.saveAllEmployees();
             System.out.println("Password updated successfully.");
+        }else{
+            System.out.println("Invalid choice.");
+            return;
         }
+
     }
 
     private void editStockInformation(Scanner sc) {
