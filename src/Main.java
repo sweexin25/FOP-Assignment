@@ -47,14 +47,14 @@ public class Main{
                     System.out.println("6. Sales Record");
                     System.out.println("7. Search Infomation");
                     System.out.println("8. Edit Infomation");
-                    System.out.println("9. Log Out");
+                    if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")) {
+                        System.out.println("9. View Employee Performance Metrics");
+                    } else {
+                        System.out.println("9. (Option Unavailable)");
+                    }
                     System.out.println("10. View Data Analytics");
                     System.out.println("11. Filter and Sort Sales History");
-                    if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")) {
-                        System.out.println("12. View Employee Performance Metrics");
-                    } else {
-                        System.out.println("12. (Option Unavailable)");
-                    }
+                    System.out.println("12. Log Out");
                     System.out.println("Enter your choice: ");
                     int choice = sc.nextInt();
                     sc.nextLine();
@@ -92,7 +92,14 @@ public class Main{
                         //edit information
                         return;
                     } else if (choice == 9) {
-                        auth.logOut();
+                        if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")) {
+                            System.out.println("===== Employee Performance Metrics =====");
+                            ArrayList<Sale> allSales = data.loadSale();
+                            performance.displayMetrics(allSales);
+                        } else {
+                            System.out.println("Access Denied: Only managers can view performance metrics.");
+                        }
+
                     } else if (choice == 10) {
                         ArrayList<Sale> allSales = data.loadSale();
                         analysis.generateSalesAnalytics(allSales);
@@ -110,13 +117,7 @@ public class Main{
                         ArrayList<Sale> allSales = data.loadSale();
                         filter.filterAndSort(allSales, startDate, endDate, sortType);
                     } else if (choice == 12) {
-                        if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")) {
-                            System.out.println("===== Employee Performance Metrics =====");
-                            ArrayList<Sale> allSales = data.loadSale();
-                            performance.displayMetrics(allSales);
-                        } else {
-                            System.out.println("Access Denied: Only managers can view performance metrics.");
-                        }
+                        auth.logOut();
                     }
                     else {
                         System.out.println("Login failed. Invalid user ID or password!");
