@@ -1,0 +1,39 @@
+=== Sale Receipt ===
+Date: 2025-12-27
+Time: 05:35 pm
+Customer: TAN
+Item(s): SW2500-3
+Quantity: 1
+Unit Price: RM845.0
+Total: RM845.0
+Transaction Method: cash
+Employee: Khairul Ariffin bin Muhammad
+
+=== Sale Receipt ===
+Date: 2025-12-27
+Time: 05:38 pm
+Customer: Swee
+Item(s): SW2500-2
+Quantity: 2
+Unit Price: RM845.0
+Item(s): SW2500-1
+Quantity: 1
+Unit Price: RM845.0
+Total: RM2535.0
+Transaction Method: credit
+Employee: Khairul Ariffin bin Muhammad
+
+=== Sale Receipt ===
+Date: 2025-12-27
+Time: 06:24 pm
+Customer: Xin
+Item(s): SW2400-3
+Quantity: 1
+Unit Price: RM769.0
+Item(s): SW2400-2
+Quantity: 1
+Unit Price: RM769.0
+Total: RM1538.0
+Transaction Method: cash
+Employee: Khairul Ariffin bin Muhammad
+

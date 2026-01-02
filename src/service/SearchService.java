@@ -16,7 +16,6 @@ public class SearchService {
     dataStorage storage;
     ArrayList<Sale> salesList;
 
-
     public SearchService(dataStorage storage) {
         this.storage = storage;
         this.salesList = storage.loadSale();
@@ -24,6 +23,7 @@ public class SearchService {
 
     public void searchService(Employee user) {
         while (true) {
+            this.salesList = storage.loadSale();
             System.out.println("What do you want to search?");
             System.out.println("1. Stock Infomations");
             System.out.println("2. Sales Infomations");
@@ -59,7 +59,7 @@ public class SearchService {
         while (true) {
             System.out.println("=== Search Stock Information ===");
             System.out.print("Search Model Name (Enter blank to exit): ");
-            String modelName = sc.nextLine();
+            String modelName = sc.nextLine().trim();
             WatchModel model = findModel(modelName);
             if (modelName.isEmpty()) {
                 return;
@@ -95,33 +95,40 @@ public class SearchService {
             System.out.println("3. Search by Model Name");
             System.out.println("4. Back to Search Menu");
             System.out.println("Enter your choice:");
-            int choice = sc.nextInt();
-            sc.nextLine();
-            switch (choice) {
-                case 1 -> {
-                    System.out.println("Enter Name keyword:");
-                    String keyword = sc.nextLine().trim();
-                    System.out.println("Searching..... \n");
-                    searchByName(salesList, keyword);
+            if (sc.hasNextInt()){
+                int choice = sc.nextInt();
+                sc.nextLine();
+
+                switch (choice) {
+                    case 1 -> {
+                        System.out.println("Enter Name keyword:");
+                        String keyword = sc.nextLine().trim();
+                        System.out.println("Searching..... \n");
+                        searchByName(salesList, keyword);
+                    }
+                    case 2 -> {
+                        System.out.println("Enter Date (YYYY-MM-DD):");
+                        String dateKeyword = sc.nextLine().trim();
+                        System.out.println("Searching..... \n");
+                        searchByDate(salesList, dateKeyword);
+                    }
+                    case 3 -> {
+                        System.out.println("Enter Model Name:");
+                        String modelKeyword = sc.nextLine().trim();
+                        System.out.println("Searching..... \n");
+                        searchByModel(salesList, modelKeyword);
+                    }
+                    case 4 -> {
+                        return;
+                    }
+                    default -> {
+                        System.out.println("Invalid choice. Enter again.");
+                    }
                 }
-                case 2 -> {
-                    System.out.println("Enter Date (YYYY-MM-DD):");
-                    String dateKeyword = sc.nextLine().trim();
-                    System.out.println("Searching..... \n");
-                    searchByDate(salesList, dateKeyword);
-                }
-                case 3 -> {
-                    System.out.println("Enter Model Name:");
-                    String modelKeyword = sc.nextLine().trim();
-                    System.out.println("Searching..... \n");
-                    searchByModel(salesList, modelKeyword);
-                }
-                case 4 -> {
-                    return;
-                }
-                default -> {
-                    System.out.println("Invalid choice. Enter again.");
-                }
+
+            }else{
+                System.out.println("Invalid choice. Enter number only.");
+                sc.nextLine();
             }
         }
     }
