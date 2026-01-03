@@ -17,6 +17,7 @@ public class Main{
         StockServiceReplace stock = new StockServiceReplace(data, att);
         SalesServiceReplace sales = new SalesServiceReplace(data, att);
         SearchService search = new SearchService(data);
+        EditService edit = new EditService(data);
         DataAnalyticService analysis = new DataAnalyticService();
         SalesFilterService filter = new SalesFilterService();
         EmployeePerformanceService performance = new EmployeePerformanceService();
@@ -26,7 +27,7 @@ public class Main{
             System.out.print("Enter User ID: ");
             String id = sc.nextLine();
             System.out.print("Enter Password: ");
-            String pass = sc.nextLine();
+            String pass = sc.nextLine().trim();
 
             boolean user = auth.login(id, pass, data.getEmployees());
             if (user) {
@@ -85,12 +86,16 @@ public class Main{
                     } else if (choice == 5) {
                         stock.stockMovement(logInUser);
                     } else if (choice == 6) {
+                        data.loadSale(); //load again so no need rerun program
                         sales.recordSale(logInUser);
                     } else if (choice == 7) {
+                        data.loadSale();
+                        data.loadModel();
                         search.searchService(logInUser);
                     } else if (choice == 8) {
-                        //edit information
-                        return;
+                        data.loadSale();
+                        data.loadModel();
+                        edit.handleEditMenu(sc);
                     } else if (choice == 9) {
                         if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")) {
                             System.out.println("===== Employee Performance Metrics =====");
@@ -119,10 +124,10 @@ public class Main{
                     } else if (choice == 12) {
                         auth.logOut();
                     }
-                    else {
-                        System.out.println("Login failed. Invalid user ID or password!");
-                    }
+
                 }
+                }else {
+                System.out.println("Login failed. Invalid user ID or password!");
             }
         }
     }

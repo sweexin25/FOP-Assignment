@@ -26,7 +26,7 @@ public class EditService {
             System.out.println("4. Back to Main Menu");
             System.out.print("Select Option: ");
 
-            String choice = sc.nextLine();
+            String choice = sc.nextLine().trim();
 
             if (choice.equals("1")) {
                 editEmployeeProfile(sc);
@@ -35,7 +35,9 @@ public class EditService {
             } else if (choice.equals("3")) {
                 editSalesInformation(sc);
             } else if (choice.equals("4")) {
-                editing = false;
+                System.out.println("Returning to main menu......\n");
+                editing=false;
+                return;
             } else {
                 System.out.println("Invalid option.");
             }
@@ -101,7 +103,7 @@ public class EditService {
             return;
         }
 
-        System.out.print("Enter Outlet Code (e.g., C60): ");
+        System.out.print("Enter Outlet Code (e.g. C60): ");
         String outlet = sc.nextLine().toUpperCase();
 
         int current = targetModel.getStock(outlet);
