@@ -1,0 +1,16 @@
+=== Sale Receipt (GUI) ===
+Date: 2026-01-03 | Time: 12:28 pm
+Customer: ONG
+Item: SW2400-2 x1
+Total: RM769.0
+Method: Cash
+Staff: Tan Guan Han
+--------------------------
+=== Sale Receipt (GUI) ===
+Date: 2026-01-03 | Time: 05:35 pm
+Customer: ONG XIAN JIE
+Item: SW2400-2 x1
+Total: RM769.0
+Method: Credit Card
+Staff: Tan Guan Han
+--------------------------

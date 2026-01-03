@@ -1,9 +1,5 @@
 package service;
 import data.dataStorage;
-import model.Employee;
-import model.Sale;
-import model.WatchModel;
-
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
@@ -11,6 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import model.Employee;
+import model.Sale;
+import model.WatchModel;
 
 public class SalesServiceReplace {
     private AttendanceService attendanceService;
@@ -30,6 +29,7 @@ public class SalesServiceReplace {
         }
         return null;
     }
+    
 
     public void recordSale(Employee user) {
         if (user == null) {
@@ -129,10 +129,61 @@ public class SalesServiceReplace {
 
         System.out.println("Receipt generated: " + receiptFile);
 
+        
+
         //for searchService
         Sale sale = new Sale(dateStr,timeStr,customerName,watchModel,subtotal, user.getName(), transactionMethod,"Success");
         sale.salesToCSV();
         storage.recordSale(sale);
+    }
+
+    public void recordSaleGUI(Employee user, String customerName, String modelName, int qty, String method) {
+        if (user == null || attendanceService.getOutletCode().isEmpty()) return;
+
+        String outletCode = attendanceService.getOutletCode();
+        WatchModel model = findModel(modelName);
+        
+        if (model == null || model.getStock(outletCode) < qty) return;
+
+        // 1. 更新库存
+        model.setStock(outletCode, model.getStock(outletCode) - qty);
+        storage.saveModels();
+
+        // 2. 准备数据
+        LocalDateTime now = LocalDateTime.now();
+        String dateStr = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String timeStr = now.format(DateTimeFormatter.ofPattern("hh:mm a"));
+        double total = model.getPrice() * qty;
+
+        ArrayList<String> itemDetails = new ArrayList<>();
+        itemDetails.add(modelName + ":" + qty);
+
+        // 3. 创建 Sale 对象并保存到 CSV
+        // 假设你的 Sale 构造函数参数顺序如下：
+        Sale sale = new Sale(dateStr, timeStr, customerName, itemDetails, total, user.getName(), method, "Success");
+        
+        sale.salesToCSV(); // 这里会写入 Sales.csv
+        storage.recordSale(sale); // 更新内存中的列表
+
+        // 4. (可选) 生成 txt 收据
+        generateTextReceipt(dateStr, timeStr, customerName, modelName, qty, model.getPrice(), total, method, user.getName());
+    }
+
+    // 将收据生成逻辑提取出来
+    private void generateTextReceipt(String date, String time, String cust, String model, int qty, double price, double total, String method, String empName) {
+        String receiptFile = "sales_" + date + ".txt";
+        try (PrintWriter pw = new PrintWriter(new FileWriter(receiptFile, true))) {
+            pw.println("=== Sale Receipt (GUI) ===");
+            pw.println("Date: " + date + " | Time: " + time);
+            pw.println("Customer: " + cust);
+            pw.println("Item: " + model + " x" + qty);
+            pw.println("Total: RM" + total);
+            pw.println("Method: " + method);
+            pw.println("Staff: " + empName);
+            pw.println("--------------------------");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
