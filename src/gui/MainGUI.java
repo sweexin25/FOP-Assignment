@@ -194,49 +194,50 @@ public class MainGUI extends JFrame {
         gbc.gridy = 5;
         panel.add(btnBack, gbc);
 
-        // Core submission logic: Handled entirely within the GUI
-        btnSubmit.addActionListener(e -> {
-            String outlet = attendanceService.getOutletCode();
-            if (outlet == null || outlet.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please Clock In first!");
-                return;
-            }
+        // 找到 MainGUI.java 中的 btnSubmit.addActionListener
+    btnSubmit.addActionListener(e -> {
+        String outlet = attendanceService.getOutletCode();
+        if (outlet == null || outlet.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please Clock In first!");
+            return;
+        }
 
-            String modelName = modelField.getText().trim();
-            int qty;
-            try { 
-                qty = Integer.parseInt(qtyField.getText()); 
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid number for quantity.");
-                return;
-            }
+        String custName = custField.getText().trim();
+        String modelName = modelField.getText().trim();
+        String method = (String) methodBox.getSelectedItem();
+        int qty;
 
-            // Logic to find the watch model
-            WatchModel found = null;
-            for (WatchModel m : storage.getModels()) {
-                if (m.getName().equalsIgnoreCase(modelName)) {
-                    found = m;
-                    break;
-                }
-            }
+        try { 
+            qty = Integer.parseInt(qtyField.getText()); 
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Invalid quantity.");
+            return;
+        }
 
-            if (found == null) {
-                JOptionPane.showMessageDialog(this, "Error: Model '" + modelName + "' not found.");
-            } else if (found.getStock(outlet) < qty) {
-                JOptionPane.showMessageDialog(this, "Stock Shortage! Current stock: " + found.getStock(outlet));
-            } else {
-                // Deduct stock and save to data source
-                found.setStock(outlet, found.getStock(outlet) - qty);
-                storage.saveModels();
-                
-                // Success feedback
-                double total = found.getPrice() * qty;
-                JOptionPane.showMessageDialog(this, "Sale Recorded!\nTotal: RM " + total);
-                
-                // Clear input fields
-                custField.setText(""); modelField.setText(""); qtyField.setText("");
+        // 查找模型
+        WatchModel found = null;
+        for (WatchModel m : storage.getModels()) {
+            if (m.getName().equalsIgnoreCase(modelName)) {
+                found = m;
+                break;
             }
-        });
+        }
+
+        if (found == null) {
+            JOptionPane.showMessageDialog(this, "Model not found.");
+        } else if (found.getStock(outlet) < qty) {
+            JOptionPane.showMessageDialog(this, "Insufficient stock!");
+        } else {
+            // 调用 Service 处理所有逻辑（包含写入 CSV 和生成收据）
+            salesService.recordSaleGUI(authService.getCurrentUser(), custName, modelName, qty, method);
+            
+            double total = found.getPrice() * qty;
+            JOptionPane.showMessageDialog(this, "Sale Recorded & Saved to CSV!\nTotal: RM " + total);
+            
+            // 清空字段
+            custField.setText(""); modelField.setText(""); qtyField.setText("");
+        }
+    });
 
         btnBack.addActionListener(e -> cardLayout.show(mainPanel, "Dashboard"));
         mainPanel.add(panel, "Sales");

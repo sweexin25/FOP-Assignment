@@ -4,3 +4,5 @@ date,time,customerName,watchModelStr,subtotal,employeeName,transactionMethod,tra
 2025-12-27,06:24 pm,Xin,SW2400-3:1|SW2400-2:1,1538.0,Khairul Ariffin bin Muhammad,cash,Success
 2025-12-28,03:51 pm,ONG XIAN JIE,DW2300-1:2,798.0,Tan Guan Han,credit card,Success
 2025-12-28,03:55 pm,ONG XIAN JIE,DW2300-1:2|DW2300-1:0,0.0,Tan Guan Han,credit,Success
+2026-01-03,12:28 pm,ONG,SW2400-2:1,769.0,Tan Guan Han,Cash,Success
+2026-01-03,05:35 pm,ONG XIAN JIE,SW2400-2:1,769.0,Tan Guan Han,Credit Card,Success

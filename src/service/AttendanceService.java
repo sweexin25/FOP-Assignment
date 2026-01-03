@@ -20,6 +20,22 @@ public class AttendanceService {
         this.storage = storage;
     }
 
+    //for GUI
+    public void setOutletCode(String code) {
+        this.outletCode = code;
+        // 自动匹配名称逻辑
+        if (storage != null) {
+            model.Outlet[] outlets = storage.getAllOutlet();
+            for (int i = 0; i < storage.getOutletCount(); i++) {
+                if (outlets[i].getOutletCode().equalsIgnoreCase(code)) {
+                    this.outletName = outlets[i].getOutletName();
+                    break;
+                }
+            }
+        }
+    }
+    
+
     public void clockIn(Employee user){
         if (tempInTime != null){
             System.out.println("You had clocked in since "+ tempInTime.format(DateTimeFormatter.ofPattern("hh:mm a")));
@@ -32,26 +48,31 @@ public class AttendanceService {
         //store for memory
         this.tempInTime = now; //in this method only
 
-        System.out.println("===== Attendance Clock In =====");
-        System.out.println("Employee ID: "+  user.getId());
-        System.out.println("Name: "+  user.getName());
-        Outlet [] outlet = storage.getAllOutlet();
-        int count = storage.getOutletCount();
-        boolean found  = false;
-        while (!found) {
-            System.out.print("Outlet Code: ");
-            String inputOutlet = sc.next();
-            for (int i = 0; i < count; i++) {
-                if (outlet[i].getOutletCode().equalsIgnoreCase(inputOutlet)) {
-                    System.out.println("Outlet Name:" + outlet[i].getOutletName());
-                    outletName = outlet[i].getOutletName();
-                    outletCode = outlet[i].getOutletCode();
-                    found = true;
-                    break;
+        // --- [逻辑优化：如果 GUI 已经设置了代码，则跳过 Terminal 输入] ---
+        if (this.outletCode == null || this.outletCode.isEmpty()) {
+            System.out.println("===== Attendance Clock In (Terminal Mode) =====");
+            System.out.println("Employee ID: " + user.getId());
+            System.out.println("Name: " + user.getName());
+            
+            Outlet[] outlet = storage.getAllOutlet();
+            int count = storage.getOutletCount();
+            boolean found = false;
+            
+            while (!found) {
+                System.out.print("Outlet Code: ");
+                String inputOutlet = sc.next();
+                for (int i = 0; i < count; i++) {
+                    if (outlet[i].getOutletCode().equalsIgnoreCase(inputOutlet)) {
+                        System.out.println("Outlet Name:" + outlet[i].getOutletName());
+                        outletName = outlet[i].getOutletName();
+                        outletCode = outlet[i].getOutletCode();
+                        found = true;
+                        break;
+                    }
                 }
-            }
-            if (found == false) {
-                System.out.println("You entered an Invalid Outlet Code!");
+                if (!found) {
+                    System.out.println("You entered an Invalid Outlet Code!");
+                }
             }
         }
 
@@ -91,7 +112,4 @@ public class AttendanceService {
     public String getOutletCode() {
         return this.outletCode;
     }
-
-
-
 }
