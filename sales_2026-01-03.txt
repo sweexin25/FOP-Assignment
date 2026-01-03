@@ -14,3 +14,11 @@ Total: RM769.0
 Method: Credit Card
 Staff: Tan Guan Han
 --------------------------
+=== Sale Receipt (GUI) ===
+Date: 2026-01-03 | Time: 08:29 pm
+Customer: XIANJIE
+Item: DW2400-1 x1
+Total: RM599.0
+Method: Cash
+Staff: Tan Guan Han
+--------------------------
