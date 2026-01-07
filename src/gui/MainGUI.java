@@ -11,8 +11,8 @@ public class MainGUI extends JFrame {
     private dataStorage storage;
     private AuthService authService;
     private AttendanceService attendanceService;
-    private StockServiceReplace stockService;
-    private SalesServiceReplace salesService;
+    private StockService stockService;
+    private SalesService salesService;
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -26,8 +26,8 @@ public class MainGUI extends JFrame {
         
         authService = new AuthService(storage);
         attendanceService = new AttendanceService(storage);
-        stockService = new StockServiceReplace(storage, attendanceService); 
-        salesService = new SalesServiceReplace(storage, attendanceService);
+        stockService = new StockService(storage, attendanceService);
+        salesService = new SalesService(storage, attendanceService);
 
         // 2. Basic window settings
         setTitle("GoldenHour Management System (GUI Mode)");
@@ -117,7 +117,7 @@ public class MainGUI extends JFrame {
 
         btnIn.addActionListener(e -> {
             // Use GUI dialog instead of Console Scanner
-            String code = JOptionPane.showInputDialog(this, "Enter Outlet Code (e.g., O001, O002):");
+            String code = JOptionPane.showInputDialog(this, "Enter Outlet Code (e.g., C60,C61...C69):");
             if (code != null && !code.isEmpty()) {
                 // Manually set the outletCode for the Service
                 attendanceService.setOutletCode(code); 
@@ -232,7 +232,7 @@ public class MainGUI extends JFrame {
             salesService.recordSaleGUI(authService.getCurrentUser(), custName, modelName, qty, method);
             
             double total = found.getPrice() * qty;
-            JOptionPane.showMessageDialog(this, "Sale Recorded & Saved to CSV!\nTotal: RM " + total);
+            JOptionPane.showMessageDialog(this, "Sale Recorded & Saved to System!\nTotal: RM " + total);
             
     
             custField.setText(""); modelField.setText(""); qtyField.setText("");

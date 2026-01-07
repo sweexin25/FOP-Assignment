@@ -167,23 +167,20 @@ public class SearchService {
         boolean found = false;
 
         for (Sale s : salesList) {
-
             // Loop through every item line in that receipt
-            // Example itemString: "SW2500-2:2"
             for (String itemString : s.getWatchModel()) {
 
-                // 1. Separate the Model Name from the Quantity
+                //Separate the Model Name from the Quantity
                 String[] parts = itemString.split(":");
-                String actualModelName = parts[0]; // Gets "SW2500-2"
+                String actualModelName = parts[0];
 
-                // 2. Compare the clean name with user input
-                // Using contains() lets users search "SW2500" and find "SW2500-2"
+                //search for identical record
                 if (actualModelName.toLowerCase().contains(model.toLowerCase())) {
                     System.out.println("Record Found!");
                     s.printReceipt();
                     found = true;
 
-                    // Stop checking this specific receipt (so we don't print it twice)
+                    // Stop checking this specific receipt
                     break;
 
                 }

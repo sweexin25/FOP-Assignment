@@ -1,0 +1,25 @@
+=== Sale Receipt ===
+Date: 2026-01-07
+Time: 07:18 pm
+Customer: POMELO
+Item(s): DW2400-2
+Quantity: 2
+Unit Price: RM599.0
+Item(s): SW2400-3
+Quantity: 1
+Unit Price: RM769.0
+Item(s): DW2300-2
+Quantity: 1
+Unit Price: RM399.0
+Total: RM2366.0
+Transaction Method: Cash
+Employee: Khairul Ariffin bin Muhammad
+
+=== Sale Receipt (GUI) ===
+Date: 2026-01-07 | Time: 07:24 pm
+Customer: Aiden
+Item: SW2400-1 x1
+Total: RM789.0
+Method: E-Wallet
+Staff: Khairul Ariffin bin Muhammad
+--------------------------

@@ -14,8 +14,8 @@ public class Main{
 
         AuthService auth = new AuthService(data);
         AttendanceService att = new AttendanceService(data);
-        StockServiceReplace stock = new StockServiceReplace(data, att);
-        SalesServiceReplace sales = new SalesServiceReplace(data, att);
+        StockService stock = new StockService(data, att);
+        SalesService sales = new SalesService(data, att);
         SearchService search = new SearchService(data);
         EditService edit = new EditService(data);
         DataAnalyticService analysis = new DataAnalyticService();

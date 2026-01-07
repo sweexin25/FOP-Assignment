@@ -23,7 +23,6 @@ public class AttendanceService {
     //for GUI
     public void setOutletCode(String code) {
         this.outletCode = code;
-        // 自动匹配名称逻辑
         if (storage != null) {
             model.Outlet[] outlets = storage.getAllOutlet();
             for (int i = 0; i < storage.getOutletCount(); i++) {
@@ -48,7 +47,7 @@ public class AttendanceService {
         //store for memory
         this.tempInTime = now; //in this method only
 
-        // --- [逻辑优化：如果 GUI 已经设置了代码，则跳过 Terminal 输入] ---
+        //extra code for gui to run without interrupt terminal
         if (this.outletCode == null || this.outletCode.isEmpty()) {
             System.out.println("===== Attendance Clock In (Terminal Mode) =====");
             System.out.println("Employee ID: " + user.getId());

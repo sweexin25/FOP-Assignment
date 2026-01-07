@@ -20,7 +20,7 @@ public class EmployeePerformanceService {
                 return;
             }
 
-            // 1. Group data by Employee Name
+            //Group data by Employee Name
             Map<String, Metric> performanceMap = new HashMap<>();
 
             for (Sale sale : allSales) {
@@ -32,11 +32,11 @@ public class EmployeePerformanceService {
                 performanceMap.put(empName, m);
             }
 
-            // 2. Sort by performance descending (highest to lowest)
+            //Sort by performance descending (highest to lowest)
             List<Metric> sortedList = new ArrayList<>(performanceMap.values());
             sortedList.sort((a, b) -> Double.compare(b.totalSalesValue, a.totalSalesValue));
 
-            // 3. Display in tabular format for clear insight [cite: 238, 244]
+            //Display in tabular format for clear insight
             System.out.println("\n--------------------------------------------------------------");
             System.out.printf("%-20s | %-15s | %-15s\n", "Employee Name", "Total Sales", "Transactions");
             System.out.println("--------------------------------------------------------------");

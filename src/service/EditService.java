@@ -178,7 +178,7 @@ public class EditService {
                     System.out.print("Enter New Model Name: ");
                     String newName = sc.nextLine();
 
-                    // --- NEW: Validate if model exists in CSV ---
+                    //Validate if model exists in CSV
                     boolean modelExists = false;
                     for (WatchModel m : storage.getModels()) {
                         if (m.getName().equalsIgnoreCase(newName)) {
