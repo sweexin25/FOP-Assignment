@@ -25,8 +25,8 @@ public class SearchService {
         while (true) {
             this.salesList = storage.loadSale();
             System.out.println("What do you want to search?");
-            System.out.println("1. Stock Infomations");
-            System.out.println("2. Sales Infomations");
+            System.out.println("1. Stock Information");
+            System.out.println("2. Sales Information");
             System.out.println("3. Back to Main Menu");
             System.out.println("Enter your choice: ");
             int choice = sc.nextInt();
@@ -89,7 +89,7 @@ public class SearchService {
     public void searchSales() {
         while (true) {
             System.out.println("=== Search Sales Information ===");
-            System.out.println("Search keyword (You can search Model Name, Customer Name, or Date)");
+            System.out.println("Search keyword:");
             System.out.println("1. Search by Customer Name");
             System.out.println("2. Search by Date");
             System.out.println("3. Search by Model Name");

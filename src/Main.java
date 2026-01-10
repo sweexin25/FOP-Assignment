@@ -46,8 +46,8 @@ public class Main{
                     System.out.println("4. Stock Count");
                     System.out.println("5. Stock Movement");
                     System.out.println("6. Sales Record");
-                    System.out.println("7. Search Infomation");
-                    System.out.println("8. Edit Infomation");
+                    System.out.println("7. Search Information");
+                    System.out.println("8. Edit Information");
                     if (auth.getCurrentUser().getRole().equalsIgnoreCase("Manager")) {
                         System.out.println("9. View Employee Performance Metrics");
                     } else {

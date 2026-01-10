@@ -10,3 +10,4 @@ Date,Time,Customer,Items,Subtotal,Employee,Method,Status
 2026-01-03,08:29 pm,XIANJIE,DW2400-1:1,599.0,Tan Guan Han,Cash,Success
 2026-01-07,07:18 pm,POMELO,DW2400-2:2|SW2400-3:1|DW2300-2:1,2366.0,Khairul Ariffin bin Muhammad,Cash,Success
 2026-01-07,07:24 pm,Aiden,SW2400-1:1,789.0,Khairul Ariffin bin Muhammad,E-Wallet,Success
+2026-01-10,05:45 pm,TAI YUN YI,SW2400-1:2|DW2400-3:1,2147.0,Tan Guan Han,Credit Card,Success
