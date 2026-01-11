@@ -19,7 +19,6 @@ public class EmployeePerformanceService {
                 return;
             }
 
-            //Group data by Employee Name
             Map<String, Metric> performanceMap = new HashMap<>();
 
             for (Sale sale : allSales) {
@@ -35,7 +34,7 @@ public class EmployeePerformanceService {
             List<Metric> sortedList = new ArrayList<>(performanceMap.values());
             sortedList.sort((a, b) -> Double.compare(b.totalSalesValue, a.totalSalesValue));
 
-            //Display in tabular format for clear insight
+            
             System.out.println("\n--------------------------------------------------------------");
             System.out.printf("%-35s | %-15s | %-15s\n", "Employee Name", "Total Sales", "Transactions");
             System.out.println("--------------------------------------------------------------");
