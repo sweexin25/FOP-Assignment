@@ -8,7 +8,7 @@ public class SalesFilterService {
         ArrayList<Sale> filtered = new ArrayList<>();
         double total = 0;
 
-        // Filtering logic
+        
         for (Sale s : allSales) {
             if (s.getDate().compareTo(start) >= 0 && s.getDate().compareTo(end) <= 0) {
                 filtered.add(s);
@@ -16,15 +16,15 @@ public class SalesFilterService {
             }
         }
 
-        // Sorting logic based on user choice
+       
         if (sortType == 1) filtered.sort(Comparator.comparing(Sale::getDate));
         else if (sortType == 2) filtered.sort(Comparator.comparingDouble(Sale::getSubtotal));
         else if (sortType == 3) filtered.sort(Comparator.comparing(Sale::getCustomerName));
 
-        // Display in tabular format
-        System.out.printf("%-12s | %-20s | %-10s | %-10s\n", "Date", "Customer", "Amount", "Method");
+        
+        System.out.printf("%-12s | %-30s | %-10s | %-10s\n", "Date", "Customer", "Amount", "Method");
         for (Sale s : filtered) {
-            System.out.printf("%-12s | %-20s | RM%-8.2f | %-10s\n",
+            System.out.printf("%-12s | %-30s | RM%-8.2f | %-10s\n",
                     s.getDate(), s.getCustomerName(), s.getSubtotal(), s.getTransactionMethod());
         }
         System.out.println("Total Cumulative Sales: RM" + total);
