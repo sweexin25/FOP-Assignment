@@ -14,15 +14,15 @@ public class DataAnalyticService {
 
         double totalRevenue = 0;
         Map<String, Integer> modelCountMap = new HashMap<>();
-        // Using String for dates since Sale.java stores date as a String
+        // using string for dates since Sale.java stores date as a string
         Set<String> uniqueDays = new HashSet<>();
 
         for (Sale sale : allSales) {
-            // 1. Calculate Total Revenue using getSubtotal() from Sale.java
+            // calculate total revenue using getSubtotal() from Sale.java
             totalRevenue += sale.getSubtotal();
             uniqueDays.add(sale.getDate());
 
-            // 2. Track Quantity per Model for "Most Sold Product"
+            // track quantity per model for "Most Sold Product"
             for (String entry : sale.getWatchModel()) {
                 String[] parts = entry.split(":");
                 String modelName = parts[0];
@@ -38,10 +38,8 @@ public class DataAnalyticService {
             }
         }
 
-        // Identify Most Sold Model
         String mostSoldModel = Collections.max(modelCountMap.entrySet(), Map.Entry.comparingByValue()).getKey();
 
-        // Calculate Average Daily Revenue
         double averageDailyRevenue = totalRevenue / uniqueDays.size();
 
         displayAnalytics(totalRevenue, mostSoldModel, averageDailyRevenue);
