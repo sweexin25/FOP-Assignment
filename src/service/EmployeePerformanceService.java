@@ -31,8 +31,14 @@ public class EmployeePerformanceService {
             }
 
             
-            List<Metric> sortedList = new ArrayList<>(performanceMap.values());
-            sortedList.sort((a, b) -> Double.compare(b.totalSalesValue, a.totalSalesValue));
+             List<Metric> sortedList = new ArrayList<>(performanceMap.values());
+            sortedList.sort((a, b) -> {
+                int result = Double.compare(b.totalSalesValue, a.totalSalesValue);
+                if (result != 0) {
+                    return result;
+                }
+                return Integer.compare(b.transactionCount, a.transactionCount);
+            });
 
             
             System.out.println("\n--------------------------------------------------------------");
